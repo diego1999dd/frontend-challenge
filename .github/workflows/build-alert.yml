@@ -1,0 +1,50 @@
+name: Alerta de build Cloudflare
+
+on:
+  check_run:
+    types: [completed]
+
+permissions:
+  issues: write
+  contents: write
+
+jobs:
+  falha:
+    if: >
+      startsWith(github.event.check_run.name, 'Workers Builds') &&
+      github.event.check_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Abrir issue com mencao (gera e-mail)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          NAME: ${{ github.event.check_run.name }}
+          SHA: ${{ github.event.check_run.head_sha }}
+          BRANCH: ${{ github.event.check_run.check_suite.head_branch }}
+          URL: ${{ github.event.check_run.details_url }}
+        run: |
+          gh issue create --repo "$REPO" \
+            --title "❌ Build falhou: $NAME ($BRANCH)" \
+            --body "@diego1999dd o build da Cloudflare falhou.
+
+          - Branch: \`$BRANCH\`
+          - Commit: $SHA
+          - Detalhes: $URL"
+
+  sucesso:
+    if: >
+      startsWith(github.event.check_run.name, 'Workers Builds') &&
+      github.event.check_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comentar no commit com mencao (gera e-mail)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.check_run.head_sha }}
+          BRANCH: ${{ github.event.check_run.check_suite.head_branch }}
+          URL: ${{ github.event.check_run.details_url }}
+        run: |
+          gh api "repos/$REPO/commits/$SHA/comments" \
+            -f body="@diego1999dd ✅ Deploy concluído na branch \`$BRANCH\`. Detalhes: $URL"
