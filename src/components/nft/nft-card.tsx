@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Icon } from '../icon'
+import { Heart } from 'lucide-react'
 import type { Nft } from '@/features/catalog/contracts'
 import { NftArtwork } from './nft-artwork'
 import { NftPrice } from './nft-price'
@@ -15,6 +15,7 @@ export function NftCard({
 	const favorite = useFavorite(nft.id)
 	return (
 		<article
+			data-network={nft.network}
 			className={`nft-card nft-card--${variant}`}
 			style={{ '--art-offset': `${nft.artworkOffset ?? 24}px` } as React.CSSProperties}
 		>
@@ -44,7 +45,7 @@ export function NftCard({
 				disabled={favorite.pending}
 				onClick={favorite.toggle}
 			>
-				<Icon name="favorite" />
+				<Heart size={15} fill={favorite.selected ? 'currentColor' : 'none'} />
 			</button>
 			{favorite.error && (
 				<p role="alert" className="nft-card__feedback">

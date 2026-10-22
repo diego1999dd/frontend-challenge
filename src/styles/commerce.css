@@ -186,6 +186,7 @@
 	color: var(--color-text-accent);
 }
 .cart-summary > [data-slot='button'] {
+	border-radius: 3px;
 	height: 40px;
 	font-size: 15px;
 	font-weight: 700;
@@ -493,6 +494,17 @@
 	}
 	.cart-page {
 		padding-top: 32px;
+	}
+	.cart-top {
+		min-height: calc(100dvh - 32px);
+		display: flex;
+		flex-direction: column;
+	}
+	.cart-body {
+		flex: 1;
+	}
+	.cart-summary {
+		margin-top: auto;
 	}
 	.cart-top > .commerce-mobile-heading {
 		margin: 0 28px 12px;

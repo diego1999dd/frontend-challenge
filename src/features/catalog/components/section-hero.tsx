@@ -1,8 +1,11 @@
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { nftImages } from '@/lib/assets'
+import { useState } from 'react'
 
 export function SectionHero() {
+	const [slide, setSlide] = useState(0)
+	const artwork = [nftImages.emerald, nftImages.sage, nftImages.golden][slide]
 	return (
 		<section aria-labelledby="hero-heading" className="home-hero" data-design="hero">
 			<div className="home-hero__copy">
@@ -36,16 +39,28 @@ export function SectionHero() {
 						<ArrowRight className="mobile-copy" size={16} />
 					</a>
 				</Button>
-				<div className="hero-dots" aria-hidden="true">
-					<i />
-					<i />
-					<i />
+				<div className="hero-dots" role="group" aria-label="Destaques do marketplace">
+					{[0, 1, 2].map((index) => (
+						<button
+							key={index}
+							type="button"
+							aria-label={`Ver destaque ${index + 1}`}
+							aria-pressed={slide === index}
+							onClick={() => setSlide(index)}
+						/>
+					))}
 				</div>
 			</div>
 			<div className="home-hero__art">
 				<img
-					src={nftImages.emerald}
-					alt="Emerald Ape com óculos e jaqueta verde"
+					src={artwork}
+					alt={
+						[
+							'Emerald Ape com óculos e jaqueta verde',
+							'Sage Nomad com chapéu e moletom lilás',
+							'Golden Beat com fones verdes',
+						][slide]
+					}
 					width={1254}
 					height={1254}
 					fetchPriority="high"

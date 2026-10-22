@@ -36,6 +36,9 @@
 	border-radius: 8px;
 	overflow: hidden;
 }
+.detail-thumbnails button[aria-pressed='true'] {
+	box-shadow: 0 0 0 2px var(--color-primary);
+}
 .detail-main-image {
 	width: 444px;
 	height: 444px;
@@ -422,9 +425,22 @@
 		color: var(--color-primary);
 		border: 1px solid var(--color-stroke);
 	}
-	.detail-thumbnails,
 	.detail-zoom {
 		display: none;
+	}
+	.detail-thumbnails {
+		position: absolute;
+		top: 184px;
+		left: 24px;
+		z-index: 1;
+		flex-direction: row;
+		width: auto;
+		gap: 12px;
+	}
+	.detail-thumbnails button,
+	.detail-thumbnails > [data-slot='skeleton'] {
+		width: 36px;
+		height: 36px;
 	}
 	.detail-main-image {
 		display: block;

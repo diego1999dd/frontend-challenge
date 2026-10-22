@@ -9,7 +9,7 @@ import type {
 } from '@/features/account/contracts'
 import type { Nft } from '@/features/catalog/contracts'
 import { ethToWei } from '@/lib/eth'
-import { initialNfts } from './fixtures'
+import { initialNfts, initialPasswordHashes } from './fixtures'
 
 export const databaseKey = 'kurio-demo-db-v2'
 export const tokenKey = 'kurio-demo-session'
@@ -61,39 +61,37 @@ export async function passwordHash(password: string, salt: string) {
 	return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 async function seed() {
-	const users = await Promise.all(
-		['ana', 'bruno'].map(async (name, index): Promise<User> => {
-			const salt = `kurio-fictional-${name}-v2`
-			return {
-				id: `user-${index + 1}`,
-				name: index === 0 ? 'Ana Colecionadora' : 'Bruno Colecionador',
-				username: name,
-				email: `${name}@kurio.test`,
-				bio: '',
-				walletAlias: '',
-				ens: '',
-				avatar: '',
-				salt,
-				passwordHash: await passwordHash('Demo123!', salt),
-				favorites: [],
-				wallets: [
-					{
-						id: `wallet-${index + 1}`,
-						name: 'Minha carteira',
-						alias: 'Principal',
-						network: 'ethereum',
-						address: `0x${String(index + 1).repeat(40)}`,
-						provider: 'MetaMask',
-						profileName: name,
-						referral: '',
-						email: `${name}@kurio.test`,
-						ens: '',
-						primary: true,
-					},
-				],
-			}
-		}),
-	)
+	const users = ['ana', 'bruno'].map((name, index): User => {
+		const salt = `kurio-fictional-${name}-v2`
+		return {
+			id: `user-${index + 1}`,
+			name: index === 0 ? 'Ana Colecionadora' : 'Bruno Colecionador',
+			username: name,
+			email: `${name}@kurio.test`,
+			bio: '',
+			walletAlias: 'Principal',
+			ens: `${name}.eth`,
+			avatar: '',
+			salt,
+			passwordHash: initialPasswordHashes[name],
+			favorites: [],
+			wallets: [
+				{
+					id: `wallet-${index + 1}`,
+					name: 'Minha carteira',
+					alias: 'Principal',
+					network: 'ethereum',
+					address: `0x${String(index + 1).repeat(40)}`,
+					provider: 'MetaMask',
+					profileName: name,
+					referral: 'DEMO',
+					email: `${name}@kurio.test`,
+					ens: `${name}.eth`,
+					primary: true,
+				},
+			],
+		}
+	})
 	if (!localStorage.getItem(databaseKey))
 		saveDatabase({
 			users,
@@ -114,11 +112,19 @@ export async function database(): Promise<Database> {
 	}
 	const db = JSON.parse(localStorage.getItem(databaseKey)!) as Database
 	let migrated = false
-	for (const nft of db.nfts)
+	for (const nft of db.nfts) {
 		if (nft.image.startsWith('/images/nfts/') && nft.image.endsWith('.png')) {
 			nft.image = nft.image.replace(/\.png$/, '.avif')
 			migrated = true
 		}
+		if (!nft.gallery?.length) {
+			const gallery = initialNfts.find((initial) => initial.id === nft.id)?.gallery
+			if (gallery) {
+				nft.gallery = gallery.map((view) => ({ ...view, image: nft.image }))
+				migrated = true
+			}
+		}
+	}
 	if (migrated) saveDatabase(db)
 	return db
 }

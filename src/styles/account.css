@@ -243,7 +243,7 @@
 	display: flex;
 	align-items: center;
 }
-.account-fields label:has(+ * input:required)::after {
+.account-fields label[data-required='true']::after {
 	content: '*';
 	color: var(--color-text-coral);
 	font-size: 22px;
@@ -351,7 +351,7 @@
 	background: var(--color-surface);
 }
 .nft-card__favorite[aria-pressed='true'] {
-	outline: 2px solid var(--color-primary);
+	color: var(--color-primary);
 }
 .nft-card__feedback {
 	color: var(--color-text-accent);
@@ -447,18 +447,20 @@
 		gap: 40px;
 	}
 	.auth-inputs input {
-		min-height: 44px;
-		height: 44px;
-		border-radius: 12px;
+		min-height: 50px;
+		height: 50px;
+		border-radius: 10px;
 	}
 	.auth-submit {
 		height: 60px;
-		border-radius: 40px;
-		background: linear-gradient(
-			109deg,
-			var(--color-primary),
-			color-mix(in srgb, var(--color-primary) 80%, transparent)
-		);
+		border-radius: 10px;
+		background: var(--color-primary);
+	}
+	.auth-panel--register input[name='username'] {
+		text-align: center;
+	}
+	.market-shell--account main {
+		padding-bottom: calc(150px + env(safe-area-inset-bottom));
 	}
 	.auth-social {
 		padding-top: 40px;

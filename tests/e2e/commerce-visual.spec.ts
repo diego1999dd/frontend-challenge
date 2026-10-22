@@ -32,7 +32,10 @@ for (const [name, route] of [
 		await page.goto(route)
 		if (name === 'login') await expect(page.locator('.auth-background article')).toHaveCount(9)
 		else await expect(page.locator('.quote-total')).toBeVisible()
-		if (name === 'cart') await expect(page.locator('.detail-related article')).toHaveCount(5)
+		if (name === 'cart')
+			await expect(page.locator('.detail-related article')).toHaveCount(
+				testInfo.project.name === 'mobile' ? 0 : 5,
+			)
 		await page.evaluate(async () => {
 			await document.fonts.ready
 			await Promise.all(

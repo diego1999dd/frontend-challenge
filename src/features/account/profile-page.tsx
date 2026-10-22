@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ImagePlus } from 'lucide-react'
 import { AccountField } from '@/components/account-field'
+import { EnsField } from '@/components/ens-field'
 import { ApiError, FormSkeleton, FormSuccess } from '@/components/api-feedback'
 import { Button } from '@/components/ui/button'
 import { http } from '@/lib/http'
@@ -60,16 +61,11 @@ function ProfileForm({ profile }: { profile: Profile }) {
 					error={errors.email}
 					autoComplete="email"
 				/>
-				<AccountField
-					label="Nome ENS"
-					name="ens"
-					defaultValue={profile.ens}
-					placeholder="seunome.eth (opcional)"
-					error={errors.ens}
-				/>
+				<EnsField defaultValue={profile.ens} error={errors.ens} />
 				<AccountField
 					label="Apelido da carteira"
 					name="walletAlias"
+					required
 					defaultValue={profile.walletAlias}
 					error={errors.walletAlias}
 				/>

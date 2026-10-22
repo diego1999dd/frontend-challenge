@@ -53,7 +53,14 @@ export function SectionCatalog() {
 	const query = useQuery(catalogOptions(search))
 	const update = (patch: Partial<CatalogSearch>) =>
 		void navigate({ search: (previous) => ({ ...previous, ...patch, page: patch.page ?? 1 }) })
-	const filters = <CatalogFilters search={search} onChange={update} facets={query.data?.facets} />
+	const filters = (
+		<CatalogFilters
+			key={`${search.min}:${search.max}`}
+			search={search}
+			onChange={update}
+			facets={query.data?.facets}
+		/>
+	)
 	return (
 		<>
 			<div className="home-filter-trigger">

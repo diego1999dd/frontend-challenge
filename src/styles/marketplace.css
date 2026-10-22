@@ -623,6 +623,8 @@
 	font-weight: 700;
 }
 .footer-newsletter form {
+	border-radius: 6px;
+	box-shadow: 0 0 20px color-mix(in srgb, var(--color-background-deep) 45%, transparent);
 	margin-top: 16px;
 	display: flex;
 	height: 40px;
@@ -639,6 +641,8 @@
 	color: var(--color-secondary-brand);
 }
 .footer-newsletter button {
+	border-radius: 0 6px 6px 0;
+	min-width: 85px;
 	background: var(--color-primary);
 	color: var(--color-background);
 	padding: 0 8px;
@@ -859,6 +863,8 @@
 	}
 	.market-footer__contact {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
+		height: auto;
+		min-height: 88px;
 	}
 	.market-footer__contact p {
 		width: auto;
@@ -1180,19 +1186,27 @@
 		z-index: 30;
 		align-items: center;
 		justify-content: space-around;
-		padding: 31px 12px 24px;
-		height: 95px;
+		padding: 31px 12px calc(24px + env(safe-area-inset-bottom));
+		height: calc(95px + env(safe-area-inset-bottom));
 		color: var(--color-text-secondary);
 	}
 	.mobile-navigation::before {
 		content: '';
 		position: absolute;
 		z-index: -1;
-		left: 0;
-		right: 0;
-		bottom: 0;
+		left: -12px;
+		right: -12px;
+		bottom: env(safe-area-inset-bottom);
 		height: 135px;
 		background: url('/images/icons/15-5504.svg') center bottom/100% 135px no-repeat;
+	}
+	.mobile-navigation::after {
+		content: '';
+		position: absolute;
+		inset: auto 0 0;
+		height: calc(1px + env(safe-area-inset-bottom));
+		background: var(--color-surface);
+		z-index: -1;
 	}
 	.mobile-navigation > a,
 	.mobile-navigation > button {

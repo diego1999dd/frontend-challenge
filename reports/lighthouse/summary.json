@@ -9,37 +9,37 @@
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 2846.2796499999995,
+      "largest-contentful-paint": 2844.05495,
       "cumulative-layout-shift": 0.04860267314702309,
-      "total-blocking-time": 19
+      "total-blocking-time": 16
     }
   },
   {
     "profile": "mobile",
     "page": "detail",
     "scores": {
-      "performance": 90,
+      "performance": 91,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 3050.124675,
+      "largest-contentful-paint": 3033.9456,
       "cumulative-layout-shift": 0,
-      "total-blocking-time": 24
+      "total-blocking-time": 22
     }
   },
   {
     "profile": "desktop",
     "page": "home",
     "scores": {
-      "performance": 99,
+      "performance": 100,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 772.23965,
+      "largest-contentful-paint": 734.18655,
       "cumulative-layout-shift": 0.01777777777777778,
       "total-blocking-time": 0
     }
@@ -54,7 +54,7 @@
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 743.2858000000001,
+      "largest-contentful-paint": 824.7339999999999,
       "cumulative-layout-shift": 0.01777777777777778,
       "total-blocking-time": 0
     }

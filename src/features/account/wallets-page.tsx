@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AccountField, AccountSelect } from '@/components/account-field'
+import { EnsField } from '@/components/ens-field'
 import { ApiError, FormSkeleton, FormSuccess } from '@/components/api-feedback'
 import { Button } from '@/components/ui/button'
 import { http } from '@/lib/http'
@@ -13,11 +14,15 @@ function WalletForm({
 	wallet,
 	secondary = false,
 	onSaved,
+	primaryWallet,
 }: {
 	wallet?: Wallet
 	secondary?: boolean
 	onSaved: () => void
+	primaryWallet?: Wallet
 }) {
+	const [copyPrimary, setCopyPrimary] = useState(false)
+	const values = copyPrimary && primaryWallet ? { ...primaryWallet, alias: 'Secundária' } : wallet
 	const mutation = useMutation({
 		mutationFn: async (data: Record<string, FormDataEntryValue>) =>
 			(await http.put(`/wallets/${wallet?.id || 'new'}`, data)).data,
@@ -38,25 +43,35 @@ function WalletForm({
 				<h1>{secondary ? 'Carteira secundária' : 'Carteira principal'}</h1>
 				<p>Estas carteiras ficam disponíveis no pagamento e para receber NFTs comprados.</p>
 			</header>
-			<div className="account-fields">
+			{secondary && primaryWallet && (
+				<label className="copy-primary-wallet">
+					<input
+						type="checkbox"
+						checked={copyPrimary}
+						onChange={(event) => setCopyPrimary(event.target.checked)}
+					/>{' '}
+					Igual à carteira principal
+				</label>
+			)}
+			<div className="account-fields" key={String(copyPrimary)}>
 				<AccountField
 					label="Nome de exibição"
 					name="name"
-					defaultValue={wallet?.name}
+					defaultValue={values?.name}
 					required
 					error={errors.name}
 				/>
 				<AccountField
 					label="Apelido da carteira"
 					name="alias"
-					defaultValue={wallet?.alias}
+					defaultValue={values?.alias}
 					required
 					error={errors.alias}
 				/>
 				<AccountSelect
 					label="Rede"
 					name="network"
-					defaultValue={wallet?.network || ''}
+					defaultValue={values?.network || ''}
 					required
 					error={errors.network}
 				>
@@ -68,29 +83,29 @@ function WalletForm({
 				<AccountField
 					label="Nome do perfil"
 					name="profileName"
-					defaultValue={wallet?.profileName}
+					defaultValue={values?.profileName}
 					required
 					error={errors.profileName}
 				/>
 				<AccountField
 					label="Endereço da carteira"
 					name="address"
-					defaultValue={wallet?.address}
+					defaultValue={values?.address}
 					placeholder="Endereço público da carteira"
 					required
 					error={errors.address}
 				/>
 				<AccountField
-					label="Nome ENS"
-					name="ens"
-					defaultValue={wallet?.ens}
-					placeholder="seunome.eth (opcional)"
-					error={errors.ens}
+					label="ENS ou carteira secundária (opcional)"
+					name="secondaryAddress"
+					placeholder="ENS ou carteira secundária (opcional)"
+					defaultValue={values?.secondaryAddress}
+					error={errors.secondaryAddress}
 				/>
 				<AccountSelect
 					label="Tipo de carteira"
 					name="provider"
-					defaultValue={wallet?.provider || ''}
+					defaultValue={values?.provider || ''}
 					required
 					error={errors.provider}
 				>
@@ -102,16 +117,19 @@ function WalletForm({
 				<AccountField
 					label="Código de indicação"
 					name="referral"
-					defaultValue={wallet?.referral}
+					required
+					defaultValue={values?.referral}
 					error={errors.referral}
 				/>
 				<AccountField
 					label="E-mail"
 					name="email"
+					required
 					type="email"
-					defaultValue={wallet?.email}
+					defaultValue={values?.email}
 					error={errors.email}
 				/>
+				<EnsField defaultValue={values?.ens} error={errors.ens} />
 			</div>
 			<ApiError error={mutation.error} />
 			{mutation.isSuccess && <FormSuccess>Carteira salva com sucesso.</FormSuccess>}
@@ -142,6 +160,7 @@ export function WalletsPage() {
 						<WalletForm
 							key={query.data[1]?.id || 'secondary'}
 							wallet={query.data[1]}
+							primaryWallet={query.data[0]}
 							secondary
 							onSaved={saved}
 						/>

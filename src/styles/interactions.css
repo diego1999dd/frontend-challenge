@@ -1,0 +1,231 @@
+/* Interaction feedback: no extra runtime, no animation on the initial Home. */
+button,
+a,
+input,
+select,
+textarea {
+	-webkit-tap-highlight-color: transparent;
+	transition:
+		color 160ms ease,
+		background-color 160ms ease,
+		border-color 160ms ease,
+		box-shadow 160ms ease,
+		transform 160ms ease;
+}
+input:focus,
+select:focus,
+textarea:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+select,
+select option {
+	color-scheme: dark;
+	background-color: var(--color-background);
+	color: var(--color-foreground);
+}
+input:autofill {
+	-webkit-text-fill-color: var(--color-foreground);
+	box-shadow: inset 0 0 0 1000px var(--autofill-background, var(--color-background));
+}
+.auth-panel {
+	--autofill-background: var(--color-surface);
+}
+@media (max-width: 767px) {
+	.auth-panel {
+		--autofill-background: var(--color-background);
+	}
+}
+.price-slider [role='slider'] {
+	cursor: pointer;
+}
+.ens-field {
+	display: grid;
+	grid-template-columns: 78px minmax(0, 1fr);
+	gap: 10px;
+}
+.copy-primary-wallet {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+}
+.copy-primary-wallet input {
+	accent-color: var(--color-primary);
+}
+@media (min-width: 768px) {
+	.connection-providers {
+		display: grid;
+		gap: 12px;
+	}
+	.connection-providers button {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 12px;
+		border: 1px solid var(--color-stroke);
+		border-radius: 3px;
+		text-align: left;
+	}
+	.connection-providers button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	.connection-providers button > i {
+		margin-left: auto;
+		width: 16px;
+		height: 16px;
+		border: 1px solid var(--color-secondary-brand);
+		border-radius: 50%;
+	}
+	.connection-providers button[aria-pressed='true'] > i {
+		background: var(--color-primary);
+	}
+}
+.password-toggle {
+	color: var(--color-secondary-brand);
+}
+.password-toggle-icon {
+	display: grid;
+	place-items: center;
+	animation: control-reveal 160ms ease-out;
+}
+.nft-card__favorite {
+	color: var(--color-text-secondary);
+}
+.nft-card__favorite[aria-pressed='true'] svg,
+.detail-gallery__mobile-actions button[aria-pressed='true'] svg,
+.detail-purchase button[aria-pressed='true'] svg {
+	animation: favorite-pop 220ms ease-out;
+}
+.detail-gallery__mobile-actions button[aria-pressed='true'] {
+	color: var(--color-primary);
+}
+.detail-share button {
+	color: var(--color-foreground);
+}
+.detail-share .design-icon {
+	background: var(--color-foreground);
+	object-position: -9999px;
+	mask: var(--share-icon) center / contain no-repeat;
+}
+.detail-share button:first-of-type {
+	--share-icon: url('/images/icons/70491-1276.svg');
+}
+.detail-share button:last-of-type {
+	--share-icon: url('/images/icons/70491-1274.svg');
+}
+.flow-overlay[data-state='open'],
+.auth-overlay[data-state='open'] {
+	animation: overlay-reveal 150ms ease-out;
+}
+.flow-dialog[data-state='open'],
+.auth-panel[data-state='open'],
+.catalog-drawer[data-state='open'] {
+	animation: control-reveal 180ms ease-out;
+}
+@media (hover: hover) {
+	.footer-social button:hover {
+		background: var(--color-surface-dark);
+		transform: translateY(-2px);
+	}
+	.footer-newsletter button:hover {
+		background: var(--color-primary-light);
+	}
+	.nft-card__favorite:hover {
+		color: var(--color-primary-light);
+		transform: scale(1.08);
+	}
+	.mobile-navigation a:hover {
+		transform: translateY(-2px);
+	}
+}
+@keyframes control-reveal {
+	from {
+		opacity: 0.8;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes overlay-reveal {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes favorite-pop {
+	50% {
+		transform: scale(1.22);
+	}
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 160ms;
+}
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation: none !important;
+	}
+}
+.hero-dots button {
+	width: 24px;
+	height: 24px;
+	position: relative;
+}
+.hero-dots button::before {
+	content: '';
+	position: absolute;
+	width: 8px;
+	height: 8px;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	background: var(--color-primary);
+}
+.hero-dots button:not([aria-pressed='true']) {
+	opacity: 0.65;
+}
+.related-dots button {
+	position: relative;
+	width: 24px;
+	height: 24px;
+}
+.related-dots button::before {
+	content: '';
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	border: 1px solid var(--color-primary);
+}
+.related-dots button[aria-pressed='true']::before {
+	background: var(--color-primary);
+}
+.hero-dots {
+	align-items: center;
+	gap: 0;
+}
+.related-dots {
+	height: 12px;
+	align-items: center;
+}
+@media (max-width: 767px) {
+	.hero-dots button::before {
+		width: 7px;
+		height: 7px;
+	}
+	.home-hero .hero-dots {
+		height: 24px;
+		gap: 0;
+		left: calc((100% + 146px) / 2 - 36px);
+	}
+}

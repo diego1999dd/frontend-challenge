@@ -34,6 +34,7 @@ export interface Nft {
 	available: number
 	version: number
 	image: string
+	gallery?: { image: string; label: string; inset: string }[]
 	network: string
 	originalPrice?: string
 	rare?: boolean

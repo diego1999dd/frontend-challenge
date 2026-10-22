@@ -1,8 +1,9 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { parseCatalogSearch } from '@/features/catalog/contracts'
 import { Icon } from './icon'
 
 export function MobileNavigation() {
+	const navigate = useNavigate()
 	return (
 		<nav className="mobile-navigation" aria-label="Navegação mobile">
 			<Link to="/" search={parseCatalogSearch({})} aria-label="Início">
@@ -14,7 +15,14 @@ export function MobileNavigation() {
 			<button
 				aria-label="Explorar NFTs"
 				className="mobile-navigation__explore"
-				onClick={() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })}
+				onClick={() => {
+					if (location.pathname !== '/') {
+						void navigate({ to: '/', search: parseCatalogSearch({}), hash: 'catalogo' })
+					} else
+						document.getElementById('catalogo')?.scrollIntoView({
+							behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+						})
+				}}
 			>
 				<Icon name="explore" />
 			</button>

@@ -1,0 +1,48 @@
+/* Narrow viewports and the effective CSS width at increased browser zoom. */
+@media (max-width: 389px) {
+	.catalog-toolbar {
+		height: auto;
+	}
+	.catalog-tabs {
+		flex-wrap: wrap;
+		white-space: normal;
+		row-gap: 16px;
+	}
+	.home-hero {
+		height: auto;
+		min-height: 190px;
+		padding: 12px;
+	}
+	.home-hero__copy {
+		flex: 1;
+		width: auto;
+		height: auto;
+		overflow-wrap: anywhere;
+	}
+	.home-hero h1 {
+		font-size: 16px;
+		line-height: 22px;
+	}
+	.home-hero__art {
+		width: 100px;
+		height: 110px;
+		flex-shrink: 0;
+		align-self: center;
+	}
+	.home-hero__art > img:first-child {
+		height: 100px;
+	}
+	.detail-heading {
+		height: auto;
+		flex-wrap: wrap;
+		gap: 12px;
+	}
+	.detail-sheet {
+		height: auto;
+	}
+	.detail-buy-bar [data-slot='button'] {
+		flex: 1;
+		min-width: 0;
+		width: auto;
+	}
+}
