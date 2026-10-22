@@ -219,7 +219,16 @@ export const router = createRouter({
 		demoRoute,
 	]),
 	defaultPreload: 'intent',
-	defaultViewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+	// Animate page changes, never filter/history updates on the same page.
+	// Overlapping snapshots can otherwise leave an outgoing slider on screen.
+	defaultViewTransition: window.CSS?.supports('selector(:active-view-transition-type(page))')
+		? {
+				types: ({ pathChanged }) =>
+					pathChanged && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+						? ['page']
+						: false,
+			}
+		: false,
 	scrollRestoration: true,
 })
 
