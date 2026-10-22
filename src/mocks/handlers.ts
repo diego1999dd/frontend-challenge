@@ -3,10 +3,9 @@ import { parseCatalogSearch } from '@/features/catalog/contracts'
 import { ethToWei } from '@/lib/eth'
 import { database, saveDatabase } from './database'
 import { accountHandlers } from './account-handlers'
-import { realtimeHandler, broadcastNftUpdate } from './realtime'
+import { broadcastNftUpdate } from './realtime'
 
 export const handlers = [
-	realtimeHandler,
 	...accountHandlers,
 	http.get('/api/nfts', async ({ request }) => {
 		const url = new URL(request.url)
