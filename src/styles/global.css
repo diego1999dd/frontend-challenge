@@ -1,6 +1,8 @@
 @import '@fontsource-variable/roboto-mono';
 @import 'tailwindcss' source('../');
 @import 'tw-animate-css';
+@import './marketplace.css';
+@import './detail.css';
 
 @theme {
 	/* Kurio — Figma / Design Tokens. Raw palette values live here only. */
