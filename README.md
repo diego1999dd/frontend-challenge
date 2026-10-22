@@ -1,15 +1,86 @@
 # Kurio — NFT Marketplace
 
-Base React, TypeScript, Vite e Tailwind do desafio Jungle Gaming.
+Implementação local do desafio Jungle Gaming com React, TypeScript, TanStack Router/Query, Axios, Tailwind, shadcn/ui, MSW, Socket.IO, Playwright e Lighthouse.
+
+Todos os dados, contas, carteiras e pagamentos são fictícios. **Não conecte uma carteira real nem envie criptomoedas.** A aplicação funciona sem backend ou serviço privado.
 
 ## Executar
 
-Node 22.23.1 e pnpm 11.8.0.
+Ambiente utilizado: Node 22.23.1 e pnpm 11.8.0.
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm dev
-pnpm build
+pnpm exec playwright install chromium
+pnpm dev:mocks
 ```
 
-Este histórico está sendo organizado por responsabilidade a partir da implementação local existente. As datas dos commits são as reais de sua criação.
+Abra [http://127.0.0.1:5173](http://127.0.0.1:5173). O Vite pode escolher outra porta caso ela esteja ocupada. Não é necessário criar `.env`.
+
+| Comando             | Finalidade                                            |
+| ------------------- | ----------------------------------------------------- |
+| `pnpm dev:mocks`    | Desenvolvimento com API e eventos simulados           |
+| `pnpm build`        | TypeScript e build de produção                        |
+| `pnpm preview`      | Servir o build localmente                             |
+| `pnpm typecheck`    | Verificação de tipos                                  |
+| `pnpm lint`         | ESLint sem warnings                                   |
+| `pnpm format:check` | Conferir formatação                                   |
+| `pnpm test:e2e`     | E2E e regressão visual em Chromium                    |
+| `pnpm test:report`  | Abrir o relatório HTML do Playwright                  |
+| `pnpm run audit`    | Lighthouse: três medições por página/perfil           |
+| `pnpm audit --prod` | Auditoria de dependências de produção, não Lighthouse |
+
+Execute `pnpm build` antes do Lighthouse. O script inicia e encerra um preview na porta 4173, usa o Chromium instalado pelo Playwright e salva HTML, JSON, ambiente e medianas em `reports/lighthouse`. Não exige Google Chrome instalado no sistema. Evite rodar os E2E junto à auditoria para não disputar CPU.
+
+## Contas e cenários
+
+| Conta | E-mail           | Senha fictícia |
+| ----- | ---------------- | -------------- |
+| Ana   | ana@kurio.test   | Demo123!       |
+| Bruno | bruno@kurio.test | Demo123!       |
+
+As contas iniciais têm uma carteira Ethereum fictícia. Novos cadastros começam sem carteiras: adicione uma em **Carteiras** antes de comprar. O formulário aceita endereço Ethereum/Polygon `0x` com 40 caracteres hexadecimais ou endereço Solana válido no formato simulado. A conexão tem opções explícitas de autorizar, recusar e desconectar.
+
+O catálogo tem 36 NFTs, nove por página. `nft-2` possui a edição `1/1` indisponível; `nft-36` está esgotado. O cupom `KURIO10` desconta 10%; `EXPIRADO` exercita expiração. Preços, descontos e taxas são calculados no mock da API em wei com BigInt.
+
+Abra [/demo](http://127.0.0.1:5173/demo) para selecionar cenários reproduzíveis: carregamento lento, respostas fora de ordem, falha de conexão, HTTP 503, falha de favorito com rollback, cupom expirado, preço alterado, pagamento recusado e timeout após criação do pedido. O painel continua acessível durante os cenários de falha. Selecione **Normal** para recuperar a rede simulada.
+
+**Restaurar cenário inicial** pede confirmação e apaga somente os dados fictícios Kurio deste navegador: cadastros, sessões, favoritos, carteiras, carrinhos, pedidos e rascunhos. Não remove outros dados do navegador. Recarregar a página não reseta o cenário nem os dados.
+
+## Fluxos
+
+- Descoberta: busca, filtros combinados, preço, rede, ordenação, paginação e histórico pela URL.
+- Detalhe: acesso direto/404, galeria, zoom, edição, disponibilidade, quantidade e favorito.
+- Conta: cadastro, conflito de e-mail/usuário, login, logout, expiração e retorno ao fluxo anterior.
+- Favoritos: atualização otimista, rollback e persistência isolada por usuário.
+- Carrinho: visitante e usuário, merge no login, quantidades, remoção, cupom e cotação.
+- Compra: carteira/rede cadastradas, conexão simulada, dados do colecionador, revisão explícita e envio idempotente.
+- Pedido: pendente, confirmado ou recusado; recuperação depois de timeout, refresh e reconexão. O recibo é um snapshot imutável da compra.
+- Perfil/carteiras: edição, avatar PNG/JPEG/WebP de até 1 MB, senha e carteira principal/secundária.
+
+Pagamentos recusados preservam o carrinho. A confirmação remove apenas as quantidades compradas. Uma cotação desatualizada exige nova revisão; o cliente não assume sucesso quando a rede falha.
+
+## Testes e referências
+
+Os testes executam em 1440, 768 e 390px, com capturas do mobile de referência em 414×896. Cada teste usa um contexto isolado. As fixtures são controladas por requisições aos handlers MSW; os testes de tempo real atravessam `socket.io-client`.
+
+Baselines: `tests/e2e/*-snapshots`. Exports originais do Figma: `tests/visual/references`. Atualize baselines apenas após revisão visual:
+
+```sh
+pnpm test:e2e --update-snapshots
+```
+
+O relatório HTML é gerado em `playwright-report`; traces e screenshots de falhas ficam em `test-results`. A suíte completa local passou os **57 testes**, sem atualização de snapshots; sua cópia está em `reports/playwright/index.html`. Após limitar a varredura do Tailwind ao código da aplicação, as **15 verificações visuais** foram repetidas e passaram novamente. O relatório em `reports/playwright-reviewed-failures` preserva traces de duas diferenças visuais já revisadas e resolvidas após corrigir a associação do label da observação. Não representa falhas pendentes. As baselines detectam regressões da implementação: não significam equivalência absoluta de pixels com o Figma.
+
+Os PNGs originais foram preservados e têm cópias AVIF de alta qualidade para entrega, reduzindo aproximadamente 8 MB para 0,85 MB nas quatro artes. Logo, ícones e imagens são locais. A fonte Roboto Mono também é empacotada localmente.
+
+## Configuração e limites
+
+`VITE_ENABLE_MOCKS` é `true` por padrão, inclusive no build de demonstração. `VITE_ENABLE_MOCKS=false` permite preparar uma integração externa; `VITE_API_URL` configura a base HTTP. O desafio entregue utiliza os mocks, não um backend real. Nenhuma variável `VITE_*` deve conter segredos.
+
+A sessão e a base simulada ficam no armazenamento local. Senhas são derivadas com PBKDF2, não armazenadas em claro; isso **não transforma o frontend em um serviço seguro de autenticação real**. Use apenas dados fictícios. MSW e Web Locks exigem navegador moderno e contexto seguro: localhost ou HTTPS.
+
+As integrações editoriais, sociais e de suporte fora do escopo exibem aviso coerente; não simulam sucesso. As conexões Socket.IO simuladas são locais à aba; não há sincronização de eventos entre dispositivos. A persistência compartilhada por abas usa Web Locks para evitar sobrescritas concorrentes.
+
+O deploy e a criação do repositório foram adiados por decisão do usuário. A entrega pública ainda precisa ser feita e verificada. O fallback SPA está preparado em `vercel.json`, mas não foi validado em produção.
+
+Arquitetura e contratos: [ARCHITECTURE.md](./ARCHITECTURE.md). Fidelidade e desvios: [docs/design-verification.md](./docs/design-verification.md). Métricas: [reports/lighthouse/SUMMARY.md](./reports/lighthouse/SUMMARY.md). A performance mobile ficou em 89/88, abaixo da meta de 90; causas e próximos passos estão em [reports/lighthouse/ANALYSIS.md](./reports/lighthouse/ANALYSIS.md). Desktop: 99; acessibilidade, boas práticas e SEO: 100 nos dois perfis.
