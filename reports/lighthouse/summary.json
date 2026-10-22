@@ -1,0 +1,62 @@
+[
+  {
+    "profile": "mobile",
+    "page": "home",
+    "scores": {
+      "performance": 89,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "largest-contentful-paint": 3249.4029,
+      "cumulative-layout-shift": 0.04860267314702309,
+      "total-blocking-time": 22
+    }
+  },
+  {
+    "profile": "mobile",
+    "page": "detail",
+    "scores": {
+      "performance": 88,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "largest-contentful-paint": 3497.556625,
+      "cumulative-layout-shift": 0,
+      "total-blocking-time": 30
+    }
+  },
+  {
+    "profile": "desktop",
+    "page": "home",
+    "scores": {
+      "performance": 99,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "largest-contentful-paint": 927.8245999999999,
+      "cumulative-layout-shift": 0.01777777777777778,
+      "total-blocking-time": 0
+    }
+  },
+  {
+    "profile": "desktop",
+    "page": "detail",
+    "scores": {
+      "performance": 99,
+      "accessibility": 100,
+      "best-practices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "largest-contentful-paint": 870.3023500000003,
+      "cumulative-layout-shift": 0.01777777777777778,
+      "total-blocking-time": 0
+    }
+  }
+]
