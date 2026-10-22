@@ -1,0 +1,115 @@
+@import '@fontsource-variable/roboto-mono';
+@import 'tailwindcss' source('../');
+@import 'tw-animate-css';
+
+@theme {
+	/* Kurio — Figma / Design Tokens. Raw palette values live here only. */
+	--color-background: #140d0a;
+	--color-background-deep: #0e0907;
+	--color-surface: #241612;
+	--color-surface-alt: #2f1d15;
+	--color-surface-dark: #38220f;
+	--color-secondary-brand: #b39463;
+	--color-stroke: #3f2319;
+	--color-stroke-soft: #55321f;
+
+	--color-primary: #d28a4c;
+	--color-primary-light: #dd9a5f;
+	--color-primary-dark: #c47b3e;
+	--color-foreground: #f5f1eb;
+	--color-text-secondary: #cfb28c;
+	--color-text-muted: #b0916a;
+	--color-text-accent: #e89b55;
+	--color-text-coral: #f0805f;
+	--color-success: #00a66c;
+	--color-error: #ed1b2e;
+
+	/* shadcn aliases: one palette shared by all components. */
+	--color-card: var(--color-surface);
+	--color-card-foreground: var(--color-foreground);
+	--color-primary-foreground: var(--color-background);
+	--color-secondary: var(--color-surface-alt);
+	--color-secondary-foreground: var(--color-foreground);
+	--color-muted: var(--color-surface-alt);
+	--color-muted-foreground: var(--color-text-secondary);
+	--color-accent: var(--color-surface-alt);
+	--color-accent-foreground: var(--color-foreground);
+	--color-destructive: var(--color-error);
+	--color-border: var(--color-stroke);
+	/* Controls need more visible boundaries than decorative borders. */
+	--color-input: var(--color-stroke-soft);
+	--color-ring: var(--color-primary);
+
+	/* Locally bundled typography. */
+	--font-sans: 'Roboto Mono Variable', monospace;
+	--font-title: var(--font-sans);
+
+	/* 1200px content within the 1440px desktop reference. */
+	--container-page: 75rem;
+	--radius-sm: 0.375rem;
+	--radius-md: 0.625rem;
+	--radius-lg: 0.75rem;
+	--radius-card: 1rem;
+}
+
+@layer base {
+	html {
+		color-scheme: dark;
+	}
+	* {
+		@apply border-stroke;
+	}
+	body {
+		@apply m-0 min-h-svh bg-background font-sans text-foreground antialiased;
+		font-size: 14px;
+	}
+	button,
+	input,
+	select,
+	textarea {
+		font: inherit;
+	}
+	button:not(:disabled),
+	select:not(:disabled) {
+		cursor: pointer;
+	}
+	:focus-visible {
+		outline: 2px solid var(--color-ring);
+		outline-offset: 4px;
+	}
+	main:focus {
+		outline: none;
+	}
+}
+
+/* Shared skeleton treatment. Geometry belongs to each skeleton component. */
+[data-slot='skeleton'] {
+	position: relative;
+	overflow: hidden;
+}
+[data-slot='skeleton']::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		color-mix(in srgb, var(--color-primary) 12%, transparent),
+		transparent
+	);
+	transform: translateX(-100%);
+	animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+	to {
+		transform: translateX(100%);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+	}
+}
