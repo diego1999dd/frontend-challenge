@@ -10,14 +10,7 @@ import { useNotice } from '@/components/notice-provider'
 import { CatalogPage } from '@/features/catalog/catalog-page'
 import { useSession } from './session-context'
 import { apiFields } from './queries'
-
-export function safeRedirect(value: unknown) {
-	return typeof value === 'string' &&
-		/^\/(?!\/)/.test(value) &&
-		!/^\/(login|cadastro)(?:[/?#]|$)/.test(value)
-		? value
-		: '/'
-}
+import { safeRedirect } from './safe-redirect'
 
 export function AuthPage({ register = false }: { register?: boolean }) {
 	const session = useSession()
