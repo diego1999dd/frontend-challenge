@@ -11,26 +11,18 @@ import { MarketplaceLayout } from '@/layouts/marketplace-layout'
 import { parseCatalogSearch, type CatalogSearch } from '@/features/catalog/contracts'
 import { CatalogPage } from '@/features/catalog/catalog-page'
 import { NftPage } from '@/features/catalog/nft-page'
+import { AuthPage, safeRedirect } from '@/features/account/auth-page'
+import { ProtectedPage } from '@/features/account/protected-page'
+import { ProfilePage } from '@/features/account/profile-page'
+import { WalletsPage } from '@/features/account/wallets-page'
+import { FavoritesPage } from '@/features/account/favorites-page'
 
-import type { ReactNode } from 'react'
-function safeRedirect(value: unknown) {
-	return typeof value === 'string' &&
-		/^\/(?!\/)/.test(value) &&
-		!/^\/(login|cadastro)(?:[/?#]|$)/.test(value)
-		? value
-		: '/'
-}
-function AuthPage({ register = false }: { register?: boolean }) { return <PendingPage title={register ? 'Cadastro' : 'Login'} /> }
-function ProtectedPage({ children }: { children: ReactNode }) { return <>{children}</> }
 function PendingPage({ title = 'Em preparação' }: { title?: string }) { return <PageState title={title} description="Tela prevista para a próxima etapa de integração." /> }
 const CartPage = PendingPage
 const CheckoutPage = PendingPage
 const OrderPage = PendingPage
 const OrdersPage = PendingPage
 const DemoPage = PendingPage
-const ProfilePage = PendingPage
-const WalletsPage = PendingPage
-const FavoritesPage = PendingPage
 
 const rootRoute = createRootRoute({
 	component: MarketplaceLayout,
