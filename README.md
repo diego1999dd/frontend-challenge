@@ -69,7 +69,7 @@ Baselines: `tests/e2e/*-snapshots`. Exports originais do Figma: `tests/visual/re
 pnpm test:e2e --update-snapshots
 ```
 
-O relatório HTML é gerado em `playwright-report`; traces e screenshots de falhas ficam em `test-results`. A execução final de 22/10/2026 passou os **96 testes: 32 cenários nos três tamanhos**, incluindo **15 verificações visuais**; sua cópia HTML está em `reports/playwright/index.html`. As baselines foram revisadas nas correções de UI e galeria; a execução completa final não atualizou snapshots. As tolerâncias e as asserções independentes de geometria do Figma foram preservadas. Os traces em `reports/playwright-reviewed-failures` são históricos de diferenças resolvidas. As baselines não afirmam equivalência absoluta de pixels com o Figma.
+O relatório HTML é gerado em `playwright-report`; traces e screenshots de falhas ficam em `test-results`. A continuação de performance em 22/10/2026 passou os **99 testes: 33 cenários nos três tamanhos**, incluindo **15 verificações visuais**; sua cópia HTML está em `reports/playwright/index.html`. As baselines foram revisadas nas correções anteriores de UI e galeria; esta rodada não alterou snapshots nem tolerâncias. As asserções independentes de geometria do Figma foram preservadas. Os traces em `reports/playwright-reviewed-failures` são históricos de diferenças resolvidas. As baselines não afirmam equivalência absoluta de pixels com o Figma.
 
 Os PNGs originais foram preservados e têm cópias AVIF de alta qualidade para entrega, reduzindo aproximadamente 8 MB para 0,85 MB nas quatro artes em resolução original. Cards e galeria também oferecem variantes de 384/768px por `srcset`/`sizes`; a versão de 1254px continua disponível para telas maiores e zoom. Logo, ícones e imagens são locais. A fonte Roboto Mono também é empacotada localmente.
 
@@ -87,7 +87,7 @@ Arquitetura e contratos: [ARCHITECTURE.md](./ARCHITECTURE.md). Fidelidade e desv
 
 Auditoria histórica da **URL pública em 22/10/2026**, após otimizar a carga inicial e antes desta revisão: performance **93/94 no mobile (Home/detalhe) e 100 no desktop**, com acessibilidade, boas práticas e SEO **100**. São medianas de três execuções independentes por página/perfil, com mocks ativos. Os relatórios públicos foram mantidos fora do repositório. Isso não comprova a publicação das correções posteriores.
 
-Auditoria local reproduzível com `pnpm build` e `pnpm run audit`: [medianas locais](./reports/lighthouse/SUMMARY.md) e [análise local](./reports/lighthouse/ANALYSIS.md). Mocks, latências e configuração foram mantidos. Antes desta revisão, o resultado era 91/90 no mobile e 99/99 no desktop. A execução pública usa condições diferentes; as notas não isolam a causa da diferença nem garantem resultados futuros.
+Auditoria local reproduzível com `pnpm build` e `pnpm run audit`: **91/91 mobile e 100/99 desktop** (Home/detalhe), demais categorias em 100 na confirmação de 22/10/2026. Veja [medianas locais](./reports/lighthouse/SUMMARY.md), [análise local](./reports/lighthouse/ANALYSIS.md) e [continuação de performance](./docs/performance-followup.md). Mocks, latências e configuração foram mantidos. A execução pública usa condições diferentes; as notas não isolam a causa da diferença nem garantem resultados futuros.
 
 ## Revisão de UI e interações
 

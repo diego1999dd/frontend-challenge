@@ -2,6 +2,8 @@
 
 Complemento de [corrections-review.md](./corrections-review.md), após reler o [enunciado oficial](https://github.com/junglegaming/frontend-challenge).
 
+Registro do fechamento enviado no commit `56567ae`. A rodada posterior de performance local está em [performance-followup.md](./performance-followup.md); os relatórios em `reports` são os mais recentes, não os números históricos deste documento.
+
 ## Correções complementares
 
 - Galeria com arte completa e três enquadramentos da mesma arte, selecionáveis por teclado e no mobile. A seleção altera a imagem principal e a ampliação; não troca o NFT por outra obra. Metadados ausentes são adicionados a bases antigas sem resetar preço, estoque, contas ou compras.

@@ -1,17 +1,17 @@
-# Lighthouse local — revisão de UI e interações
+# Lighthouse local — continuação de performance
 
-Auditoria iniciada em **22/10/2026 às 20:49:35 UTC (17:49:35 em São Paulo)**, após as correções e a revisão final. Build de produção servido pelo Vite Preview; MSW e funcionalidades ativos; cenário padrão; três medições sequenciais por página/perfil, sem E2E em paralelo. O script e a configuração da auditoria não foram alterados.
+Auditoria de confirmação iniciada em **22/10/2026 às 21:13:45 UTC (18:13:45 em São Paulo)**. Build de produção servido pelo Vite Preview; MSW e funcionalidades ativos; cenário padrão; três medições sequenciais por página/perfil, sem E2E em paralelo. O script, a configuração e as latências não foram alterados.
 
 ## Resultados finais
 
 | Perfil  | Página  | Performance | Acessibilidade | Boas práticas | SEO | LCP (ms) | CLS    | TBT (ms) |
 | ------- | ------- | ----------- | -------------- | ------------- | --- | -------- | ------ | -------- |
-| Mobile  | Home    | 91          | 100            | 100           | 100 | 2833     | 0,0486 | 15       |
-| Mobile  | Detalhe | 89          | 100            | 100           | 100 | 3267     | 0,0000 | 14       |
-| Desktop | Home    | 99          | 100            | 100           | 100 | 747      | 0,0178 | 0        |
-| Desktop | Detalhe | 99          | 100            | 100           | 100 | 789      | 0,0178 | 0        |
+| Mobile  | Home    | 91          | 100            | 100           | 100 | 2844     | 0,0486 | 16       |
+| Mobile  | Detalhe | 91          | 100            | 100           | 100 | 3034     | 0,0000 | 22       |
+| Desktop | Home    | 100         | 100            | 100           | 100 | 734      | 0,0178 | 0        |
+| Desktop | Detalhe | 99          | 100            | 100           | 100 | 825      | 0,0178 | 0        |
 
-São medianas de três execuções. Metas: performance ≥90, acessibilidade ≥95, boas práticas ≥95 e SEO ≥90. **A performance do detalhe mobile ficou um ponto abaixo da meta**; as demais medianas atingiram as metas. A rodada histórica de 90/90 não substitui o resultado atual. Notas variam e não há garantia de repetição exata.
+São medianas de três execuções. Metas: performance ≥90, acessibilidade ≥95, boas práticas ≥95 e SEO ≥90. **Todas as medianas atingiram as metas nesta confirmação.** A primeira rodada com o adaptador lazy teve 91/90 mobile e 100/99 desktop; a confirmação teve 91/91 e 100/99. Isso não garante nota idêntica em outra máquina ou execução, especialmente perto do limite mobile.
 
 Os **12 HTMLs e 12 JSONs individuais desta rodada** estão nas subpastas `mobile` e `desktop`. `SUMMARY.md`, `summary.json` e `environment.json` descrevem o conjunto atual, não relatórios históricos.
 
@@ -27,19 +27,21 @@ Os **12 HTMLs e 12 JSONs individuais desta rodada** estão nas subpastas `mobile
 
 A primeira rodada desta revisão apontou alvos de toque insuficientes nas novas bolinhas de carrossel (acessibilidade 96/97 na Home e 97 no detalhe desktop). Pseudo-elementos com áreas sobrepostas não bastavam. Foram adotados **botões reais de 24×24px ou mais**, com pontos visuais pequenos e espaçamento adequado. A auditoria final voltou a 100 em acessibilidade em todos os perfis. O espaçamento é um desvio deliberado de acessibilidade em relação ao Figma, documentado em `docs/corrections-review.md`. A rodada intermediária foi arquivada fora do repositório.
 
-## Resultado abaixo da meta e trabalho de otimização
+## Comparação e trabalho de otimização
 
-O detalhe mobile tem LCP de aproximadamente **3,27 s**, CLS zero e TBT baixo. O elemento LCP é a imagem principal. O caminho crítico inclui carregamento/execução do frontend e MSW, consulta REST com latência padrão e descoberta/decodificação da imagem; não há um bloqueio longo único nem deslocamento de layout que explique o resultado. O preload da imagem continua usando a resposta real da API, sem embutir o resultado de uma fixture na página. A próxima otimização deve reduzir esse caminho crítico, principalmente a carga inicial de JavaScript, mantendo a API como referência.
+O detalhe mobile passou de performance **89 para 91** e LCP mediano de **3267 para 3034ms**, com CLS zero e TBT baixo. O elemento LCP continua sendo a imagem principal, obtida pela mesma consulta REST e com a mesma qualidade. O relatório anterior mostrava o download do cliente Socket.IO praticamente junto com o da imagem, além do adaptador de protocolo no bootstrap REST.
 
-Foram mantidas as mudanças de benefício funcional: não animar a carga inicial, seed com hashes fictícios pré-calculados (validação PBKDF2 preservada), CSS de comércio lazy e nenhuma consulta/renderização da seção de relacionados já oculta no mobile. Isso não comprova causalidade isolada de cada mudança nas notas. Experimentos de inicialização paralela e CSS inline não melhoraram o detalhe e foram descartados. As condições de auditoria e latências não foram reduzidas para atingir a meta. Uma rodada intermediária com 89/89 foi arquivada fora do repositório.
+O worker agora inicia com os handlers REST, sem importar imediatamente o adaptador Socket.IO. Esse adaptador é registrado sob demanda antes de criar o cliente. A imagem inicial ganha prioridade de pintura, com limite de espera de um segundo, erro tratado e cancelamento ao desmontar/trocar sessão. Não há pausa fixa quando ela já está pronta. A conexão continua real e reconcilia o estado com REST ao conectar, recuperando alterações anteriores; não há setters substituindo os eventos nem confirmação de compra fora da simulação. A melhora foi medida no conjunto, não atribuída isoladamente a cada linha.
+
+As otimizações anteriores foram preservadas. Apenas aguardar a pintura, sem separar o adaptador do bootstrap, manteve o detalhe em 89; esse experimento não é apresentado como sucesso isolado. Relatórios completos da primeira rodada bem-sucedida foram arquivados fora do repositório; os HTML/JSON versionáveis acima são da confirmação mais recente. Detalhes em [performance-followup.md](../../docs/performance-followup.md).
 
 ## Verificação complementar
 
-- **96 testes Playwright aprovados** na revisão funcional, incluindo 15 visuais, em 1440/768/390px (capturas de referência mobile em 414×896). O relatório HTML final acompanha os fontes desta entrega.
+- **99 testes Playwright aprovados**, incluindo 15 visuais, em 1440/768/390px (capturas de referência mobile em 414×896). O teste adicional verifica espera por imagem, cancelamento e fallback; os demais exercitam Socket.IO, reconexão, isolamento e compra. O relatório HTML corresponde à execução completa aprovada.
 - Treze baselines revistas após as correções; rodada completa posterior sem atualização de snapshots, sem alterar tolerâncias ou asserções de geometria do Figma.
-- Lint, formatação, tipos e build aprovados; instalação separada com lockfile congelado/offline e build também aprovados.
-- Build de produção servido localmente: perfil/carteiras, ausência de overflow, compra e refresh do recibo verificados nos três tamanhos.
-- Recuperação de chunk verificada com HTTP 404 na primeira requisição real de uma página lazy: uma recarga recuperou a tela e a sessão. Isso não confirma a causa da captura genérica original.
+- Lint, formatação, tipos e build aprovados; dependências e lockfile não foram alterados. A instalação separada com lockfile congelado/offline pertence à verificação anterior, não foi repetida nesta continuação.
+- Build de produção servido localmente em 1440/768/390px: adaptador lazy conecta, evento Socket.IO atualiza o preço e o aviso, compra confirma e o mesmo recibo é recuperado após refresh. Nenhum erro de página nesses fluxos.
+- A recuperação de chunk com HTTP 404 foi verificada na rodada anterior; o E2E de recuperação continua aprovado. Isso não confirma a causa da captura genérica original.
 
 ## Reproduzir
 
