@@ -82,7 +82,11 @@ Favoritos usam atualização otimista com snapshot anterior, rollback e invalida
 
 ## Socket.IO
 
-O bootstrap baixa módulos da aplicação em paralelo à preparação do worker, mas monta React somente após o MSW estar ativo. `socket.io-client` é importado pelo efeito montado: seu WebSocket é capturado depois da interceptação, não antes.
+As definições de rotas e a sessão têm imports estáticos para que o Vite descubra suas dependências no HTML. Páginas secundárias de conta/compra usam `React.lazy` e `Suspense`. No build com mocks, um plugin adiciona `modulepreload` ao bootstrap MSW e suas dependências: antecipa download/compilação, não a ativação do worker. React só é montado após `worker.start()` concluir.
+
+Depois de ativar o MSW, o bootstrap antecipa a consulta pública da URL inicial usando as mesmas opções, filtros interpretados pelo Router e cache TanStack Query da página. No detalhe, a resposta permite antecipar a arte principal com o mesmo `srcset`/`sizes` do componente; não há importação de fixtures nem desvio da API.
+
+`socket.io-client` é importado pelo efeito montado depois da sessão e das primeiras consultas públicas concluírem, dando prioridade à primeira tela. Essa espera é apenas de bootstrap: refetches posteriores não desmontam o socket. Em rede lenta, eventos podem ocorrer antes da conexão; a reconciliação REST ao conectar recupera o estado corrente. A interceptação MSW já está ativa antes de criar o transporte.
 
 Transporte WebSocket real do cliente, namespace padrão, com protocolo adaptado por `@mswjs/socket.io-binding`. MSW 2.10 normaliza `/socket.io/` para `/` ao fazer matching; o handler confere o pathname original e libera conexões de desenvolvimento do Vite.
 
@@ -112,8 +116,8 @@ Os mocks são os mesmos em desenvolvimento, build e testes. O banco tem chave ve
 
 Os frames e assets foram lidos pelo Figwright 0.6.0; nenhuma alteração foi feita no Figma. Componentes shadcn foram adaptados à identidade Kurio. O checkout mobile prioriza carteira e mantém os dados do colecionador em diálogo com foco controlado; a revisão é um estado adicional necessário ao enunciado.
 
-Há labels, mensagens de erro, foco visível, links de retorno, diálogos Radix, feedback live e skeletons com movimento reduzido. O skeleton do detalhe compartilha a geometria da tela para evitar salto de layout. As cópias AVIF mantêm a composição e dimensão das artes originais; os PNGs originais continuam disponíveis.
+Há labels, mensagens de erro, foco visível, links de retorno, diálogos Radix, feedback live e skeletons com movimento reduzido. O skeleton do detalhe compartilha a geometria da tela para evitar salto de layout. As cópias AVIF mantêm a composição das artes, com variantes de 384/768px e original de 1254px escolhidas por `srcset`/`sizes`. Os PNGs originais continuam disponíveis; o layout não muda com a resolução do arquivo entregue.
 
 A verificação usa Chromium em desktop/tablet/mobile e screenshots versionadas. Perfis, carteiras e recibo também são responsivos, com adaptação inferida onde não há frame mobile. Desvios e referências estão em `docs/design-verification.md`. Métricas e condições de medição ficam em `reports/lighthouse`.
 
-Publicação e repositório não foram executados, conforme orientação do usuário para preparar apenas localmente. O fallback de rotas públicas ainda precisa ser verificado na hospedagem escolhida. A auditoria de dependências de produção não apontou vulnerabilidades no ambiente verificado; dependências de desenvolvimento da ferramenta Lighthouse ainda têm alertas transitivos, reproduzíveis com `pnpm audit`. Não são importadas pela aplicação publicada.
+Uma versão anterior foi publicada pelo usuário na Cloudflare; fallback SPA, login, compra e refresh do recibo foram verificados no Edge. As otimizações de carregamento desta rodada foram verificadas localmente e ainda precisam ser publicadas. A auditoria de dependências de produção anteriormente não apontou vulnerabilidades no ambiente verificado; dependências de desenvolvimento da ferramenta Lighthouse tinham alertas transitivos, reproduzíveis com `pnpm audit`. Essa observação histórica não substitui uma nova auditoria de dependências. Essas ferramentas não são importadas pela aplicação publicada.

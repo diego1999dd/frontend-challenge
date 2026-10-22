@@ -1,36 +1,53 @@
 # Análise das auditorias locais
 
-Medição em 21/10/2026, build de produção servido por Vite Preview, MSW e Socket.IO ativos, cenário padrão e três execuções sequenciais por página/perfil. Os E2E não rodaram em paralelo. Versões, hardware e condições estão em `environment.json`; as medianas completas estão em `SUMMARY.md`. Os relatórios individuais HTML/JSON foram preservados, inclusive quando a nota ficou abaixo da meta.
+Medição iniciada em 22/10/2026 às 06:17:33 UTC (03:17:33 em São Paulo), com build de produção servido por Vite Preview, mocks ativos, cenário padrão e três execuções sequenciais por página/perfil. Os E2E não rodaram em paralelo. Versões, hardware e condições estão em `environment.json`; as medianas completas estão em `SUMMARY.md` e `summary.json`. Os doze relatórios individuais HTML/JSON desta rodada foram preservados apenas localmente, fora deste commit. Arquivos individuais anteriormente versionados são históricos; execute a auditoria para regenerá-los para o código atual.
 
 ## Metas e resultados
 
-| Categoria      | Meta | Home mobile     | Detalhe mobile  | Home desktop | Detalhe desktop |
-| -------------- | ---- | --------------- | --------------- | ------------ | --------------- |
-| Performance    | ≥ 90 | **89 — abaixo** | **88 — abaixo** | 99           | 99              |
-| Accessibility  | ≥ 95 | 100             | 100             | 100          | 100             |
-| Best Practices | ≥ 95 | 100             | 100             | 100          | 100             |
-| SEO            | ≥ 90 | 100             | 100             | 100          | 100             |
+| Categoria      | Meta | Home mobile | Detalhe mobile | Home desktop | Detalhe desktop |
+| -------------- | ---- | ----------- | -------------- | ------------ | --------------- |
+| Performance    | ≥ 90 | **91**      | **90**         | 99           | 99              |
+| Accessibility  | ≥ 95 | 100         | 100            | 100          | 100             |
+| Best Practices | ≥ 95 | 100         | 100            | 100          | 100             |
+| SEO            | ≥ 90 | 100         | 100            | 100          | 100             |
 
-As notas automáticas de acessibilidade não substituem a verificação por teclado, foco e labels exercitada pelos E2E. Os resultados são locais e não garantem a mesma nota em hospedagem pública ou em outro equipamento.
+As metas foram atingidas nas medianas desta rodada, não necessariamente em cada execução individual. O detalhe está no limite da meta; CPU, rede e navegador podem alterar a nota. As notas automáticas de acessibilidade não substituem a verificação por teclado, foco e labels exercitada pelos E2E.
 
-## Por que o mobile está abaixo de 90
+## Comparação com o resultado anterior
 
-O limitante observado é o **LCP**, não longas tarefas bloqueantes: medianas de 3.249 ms na Home e 3.498 ms no detalhe, com TBT de 22 e 30 ms. O CLS foi 0,0486 e 0,0000, respectivamente.
+| Mobile  | Performance anterior → atual | LCP anterior → atual | TBT atual |
+| ------- | ---------------------------- | -------------------- | --------- |
+| Home    | 89 → 91                      | 3.249 → 2.846 ms     | 19 ms     |
+| Detalhe | 88 → 90                      | 3.498 → 3.050 ms     | 24 ms     |
 
-- Na Home, o Lighthouse identifica o fundo SVG da navegação mobile como elemento LCP. Na primeira medição, aproximadamente 1.909 ms estão na fase de renderização após carregar o recurso. A navegação só é montada depois do bootstrap React/MSW. O recurso já tem preload no mobile; o atraso não é explicado apenas pelo tamanho da imagem.
-- No detalhe, a primeira medição atribui aproximadamente 2.706 ms ao atraso até iniciar o carregamento da arte principal, e 182 ms à transferência. A descoberta da imagem depende da montagem da aplicação e da resposta REST simulada. Os chunks iniciais incluem React/Router/Query, os mocks e código de páginas de conta/compra. O relatório também aponta JavaScript não utilizado na carga inicial.
+O CLS permaneceu em 0,0486 na Home e zero no detalhe mobile. O desktop manteve 99 nas duas páginas. O resultado anterior é histórico; os relatórios desta pasta foram substituídos pela nova rodada. Foi feita uma cópia de segurança local dos relatórios anteriores antes da otimização.
 
-A cadeia de inicialização e a descoberta tardia da arte são causas prováveis inferidas dessas fases e da implementação, não uma medição isolada do custo de cada biblioteca. MSW permanece ativo, com a mesma persistência e funcionalidades da demonstração; não foi removido nem contornado para melhorar a nota.
+O limitante continua sendo o LCP, não tarefas longas. As fases dos relatórios anteriores indicavam descoberta tardia da imagem e espera pelo bootstrap. A melhoria observada é do conjunto de mudanças abaixo; não foi isolado o ganho de cada uma.
 
-## Melhorias já aplicadas
+## Mudanças implementadas nesta rodada
 
-- Artes AVIF em alta qualidade, preservando os PNGs originais e a resolução.
-- Fonte local e preload da variante Latin; preload do fundo da navegação mobile.
-- Download dos módulos da aplicação em paralelo à inicialização do MSW; conexão Socket.IO criada somente após o worker estar pronto.
-- Dimensões intrínsecas dos ícones e skeleton do detalhe com a geometria do conteúdo.
-- Detecção de classes Tailwind restrita a `src`, sem varrer relatórios gerados.
-- `robots.txt` real e hierarquia de headings ajustada.
+- Páginas secundárias de conta/compra sob demanda com `React.lazy` e `Suspense`; helper de redirecionamento separado para não importar a página de login antecipadamente.
+- Definições de rotas e sessão estáticas, permitindo descoberta das dependências no HTML. Fragmentar o bootstrap em mais imports dinâmicos não melhorou as medições intermediárias.
+- `modulepreload` do bootstrap MSW e suas dependências no build de demonstração. O worker continua precisando estar pronto antes de montar React ou consultar REST.
+- Consulta inicial antecipada no mesmo cache TanStack Query e pela mesma camada Axios/MSW. Filtros usam a interpretação da URL feita pelo Router. A arte do detalhe é descoberta após a resposta REST, com os mesmos atributos responsivos do componente.
+- Variantes AVIF RGB de 384/768px por `srcset`/`sizes`, preservando originais PNG e AVIF de 1254px e a geometria das telas.
+- Importação inicial do cliente Socket.IO após a sessão e as primeiras consultas públicas concluírem. Refetches posteriores não reiniciam o socket. Ao conectar/reconectar, REST reconcilia o estado, inclusive mudanças ocorridas durante a espera inicial.
 
-## Próxima otimização recomendada
+Não foram alterados `scripts/audit.mjs`, `lighthouserc.cjs`, latências dos mocks, throttling, metas ou número de medições para obter essas notas. O bootstrap não acessa fixtures diretamente. O comportamento é o mesmo fora da auditoria.
 
-Separar páginas de conta/compra em chunks sob demanda e medir novamente a cadeia inicial sem alterar o comportamento dos mocks. Também avaliar a descoberta antecipada da arte do detalhe e variantes responsivas das imagens. Essas otimizações adicionais **não estão implementadas** nesta rodada. Não se afirma que a meta mobile de performance foi atingida.
+## Verificação
+
+- ESLint e build de produção aprovados.
+- **60 testes Playwright aprovados**, em desktop/tablet/mobile, incluindo filtros codificados na URL, páginas sob demanda sem erros do React, falhas/recuperação, idempotência, isolamento de sessão e eventos Socket.IO.
+- **15 verificações visuais** aprovadas nessa suíte. Oito baselines foram revistas e atualizadas pela rasterização das variantes; depois a suíte passou sem atualizar snapshots, sem mudar tolerâncias ou medidas de layout.
+- Smoke adicional no build de produção em 1440/390px: imagem responsiva, compra, refresh do recibo imutável, limpeza do carrinho e atualização Socket.IO aprovados, sem erros de página/React.
+- Build separado com `VITE_ENABLE_MOCKS=false` aprovado, sem chunk de bootstrap MSW ou seu preload. O build auditado continua com mocks ativos.
+
+## Reproduzir e limites
+
+```sh
+pnpm build
+pnpm run audit
+```
+
+Não execute E2E ou tarefas pesadas em paralelo. O script usa um navegador durante as doze medições, como antes; a auditoria pública histórica usa execuções independentes. Os procedimentos não são idênticos, portanto a diferença local/pública não prova isoladamente um efeito da Cloudflare. Os resultados não garantem notas futuras nem representam a publicação dessas otimizações locais.

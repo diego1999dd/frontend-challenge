@@ -56,6 +56,41 @@ async function checkout(page: Page) {
 	await expect(page.getByRole('dialog', { name: 'Revisar e confirmar compra' })).toBeVisible()
 }
 
+test('bootstrap preserva filtros da URL e rotas lazy não geram erros do React', async ({
+	page,
+}) => {
+	const errors: string[] = []
+	const catalogRequests: URL[] = []
+	page.on('request', (request) => {
+		const url = new URL(request.url())
+		if (url.pathname === '/api/nfts') catalogRequests.push(url)
+	})
+	page.on('pageerror', (error) => errors.push(error.message))
+	page.on('console', (message) => {
+		if (message.type() === 'error' && /called use\(\)|conditional-use-of-use/.test(message.text()))
+			errors.push(message.text())
+	})
+	await page.goto('/?min=%221%22&max=%222%22')
+	await expect(page.getByRole('article').first()).toBeVisible()
+	expect(catalogRequests.length).toBeGreaterThan(0)
+	expect(
+		catalogRequests.every(
+			(url) => url.searchParams.get('min') === '1' && url.searchParams.get('max') === '2',
+		),
+	).toBe(true)
+	await login(page)
+	for (const [path, heading] of [
+		['/carteiras', 'Carteira principal'],
+		['/favoritos', 'Lista de interesse'],
+		['/pedidos', 'Meus pedidos'],
+		['/demo', 'Cenários da demonstração'],
+	]) {
+		await page.goto(path)
+		await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
+	}
+	expect(errors).toEqual([])
+})
+
 test('sessão, favorito otimista, rollback e isolamento entre usuários', async ({ page }) => {
 	await login(page)
 	await page.goto('/nfts/nft-2')

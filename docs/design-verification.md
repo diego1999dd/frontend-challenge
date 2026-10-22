@@ -45,7 +45,7 @@ Mobile Home: margem de 24px, busca de 45px, hero de 366×190px a partir de Y=101
 
 ## Assets e reutilização
 
-Quatro imagens originais de 1254×1254px são compartilhadas por hero, cards, galeria, promos e diário, com recortes próprios da composição. Estão em `public/images/nfts`, preservando o hash de origem. A aplicação serve cópias AVIF na mesma resolução; os PNGs originais foram preservados. Logotipo: SVG `70486:510`, com export próprio para o login mobile. Ícones e fundo da navegação mobile: SVGs exportados em `public/images/icons`.
+Quatro imagens originais de 1254×1254px são compartilhadas por hero, cards, galeria, promos e diário, com recortes próprios da composição. Estão em `public/images/nfts`, preservando o hash de origem. A aplicação mantém AVIF em 1254px e oferece variantes de 384/768px nos cards e galeria por `srcset`/`sizes`; os PNGs originais foram preservados. As variantes mantêm a composição e codificação RGB, sem alterar a geometria do layout. Logotipo: SVG `70486:510`, com export próprio para o login mobile. Ícones e fundo da navegação mobile: SVGs exportados em `public/images/icons`.
 
 `Header`, `Footer`, `NftCard`, `NftArtwork`, `NftPrice`, `QuantitySelector`, filtros e diálogos são reutilizados entre contextos. Conta e compra compartilham campos, seleção, erros, resumo de cotação e itens do recibo. As seções coordenam os dados; os cards não importam fixtures. Paleta central em `global.css`, sem repetir cores de marca em JSX.
 
@@ -54,6 +54,8 @@ Quatro imagens originais de 1254×1254px são compartilhadas por hero, cards, ga
 Exports originais: `tests/visual/references`. Baselines Chromium/Windows: `tests/e2e/visual.spec.ts-snapshots` e `tests/e2e/commerce-visual.spec.ts-snapshots`. Home, detalhe, login, carrinho e checkout têm capturas automatizadas. Para verificar regressão, executar `pnpm test:e2e`. Atualizar baselines somente após revisar a alteração: `pnpm test:e2e --update-snapshots`.
 
 As baselines são capturas da implementação e não afirmam equivalência pixel a pixel com o Figma. A inspeção compara os exports do Figma com o navegador. Há cobertura de 1440px, 768px, 390px e capturas mobile em 414×896; 768/390 são adaptações fluidas, sem frame original nesses tamanhos.
+
+Em 22/10/2026, oito baselines de detalhe/carrinho/checkout foram atualizadas após revisão das diferenças de rasterização das imagens responsivas. Nenhuma medida de layout ou tolerância de screenshot foi alterada. As 15 verificações visuais passaram na suíte completa seguinte, sem atualização de snapshots.
 
 ## Diferenças e limites deliberados
 
@@ -66,4 +68,4 @@ As baselines são capturas da implementação e não afirmam equivalência pixel
 - Login, cadastro, perfil, carteiras, favoritos, carrinho, checkout e pedidos estão implementados com persistência local. A confirmação aparece somente após o pedido simulado chegar ao estado confirmado.
 - Estados de erro, confirmação de carteira, revisão da cotação, pedidos e adaptações mobile sem frame específico são extensões funcionais, não cópias de telas inexistentes no Figma. Não há campos de entrega física para NFTs.
 - O checkout mobile prioriza carteiras como na referência; dados do colecionador ficam em diálogo acessível. Preços, estoque, quantidades e totais vêm do mock, não dos números ilustrativos dos frames.
-- Relatórios Lighthouse ficam em `reports/lighthouse`; a medição usa o build de produção com mocks ativos. Deploy e validação em um endereço público foram adiados a pedido do usuário.
+- Relatórios locais ficam em `reports/lighthouse`; a medição usa o build de produção com mocks ativos. Uma versão anterior foi publicada e verificada no Edge; sua auditoria está em `reports/lighthouse-published`. As otimizações locais desta rodada ainda precisam ser publicadas.

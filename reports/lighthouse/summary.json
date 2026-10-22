@@ -3,30 +3,30 @@
     "profile": "mobile",
     "page": "home",
     "scores": {
-      "performance": 89,
+      "performance": 91,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 3249.4029,
+      "largest-contentful-paint": 2846.2796499999995,
       "cumulative-layout-shift": 0.04860267314702309,
-      "total-blocking-time": 22
+      "total-blocking-time": 19
     }
   },
   {
     "profile": "mobile",
     "page": "detail",
     "scores": {
-      "performance": 88,
+      "performance": 90,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 3497.556625,
+      "largest-contentful-paint": 3050.124675,
       "cumulative-layout-shift": 0,
-      "total-blocking-time": 30
+      "total-blocking-time": 24
     }
   },
   {
@@ -39,7 +39,7 @@
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 927.8245999999999,
+      "largest-contentful-paint": 772.23965,
       "cumulative-layout-shift": 0.01777777777777778,
       "total-blocking-time": 0
     }
@@ -54,7 +54,7 @@
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 870.3023500000003,
+      "largest-contentful-paint": 743.2858000000001,
       "cumulative-layout-shift": 0.01777777777777778,
       "total-blocking-time": 0
     }

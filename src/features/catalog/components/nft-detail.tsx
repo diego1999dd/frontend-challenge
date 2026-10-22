@@ -5,6 +5,7 @@ import { Dialog, Tabs } from 'radix-ui'
 import { Heart, ChevronLeft, Search, Star, Mail, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { NftArtwork } from '@/components/nft/nft-artwork'
+import { detailArtworkSizes } from '@/lib/assets'
 import { NftCard } from '@/components/nft/nft-card'
 import { QuantitySelector } from '@/components/quantity-selector'
 import { useNotice } from '@/components/notice-provider'
@@ -100,12 +101,12 @@ export function NftDetail({ nft }: { nft: Nft }) {
 									onClick={() => setThumbnail(index)}
 									key={index}
 								>
-									<NftArtwork nft={nft} />
+									<NftArtwork nft={nft} sizes="100px" loading="lazy" />
 								</button>
 							))}
 						</div>
 						<div className="detail-main-image">
-							<NftArtwork nft={nft} fetchPriority="high" />
+							<NftArtwork nft={nft} sizes={detailArtworkSizes} fetchPriority="high" />
 						</div>
 						<Dialog.Root>
 							<Dialog.Trigger className="detail-zoom" aria-label="Ampliar imagem do NFT">
@@ -118,7 +119,7 @@ export function NftDetail({ nft }: { nft: Nft }) {
 									<Dialog.Description className="sr-only">
 										Arte digital da coleção {nft.collection}.
 									</Dialog.Description>
-									<NftArtwork nft={nft} />
+									<NftArtwork nft={nft} sizes="(max-width: 848px) calc(100vw - 48px), 800px" />
 									<Dialog.Close
 										aria-label="Fechar imagem ampliada"
 										className="absolute top-3 right-3 rounded-full bg-surface p-2"
