@@ -96,7 +96,7 @@ export function AuthPage({ register = false }: { register?: boolean }) {
 								}
 							}}
 						>
-							{session.expired && (
+							{session.expired && !register && (
 								<p role="status" className="text-text-accent">
 									Sua sessão expirou. Entre para retomar de onde parou.
 								</p>

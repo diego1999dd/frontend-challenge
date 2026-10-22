@@ -12,6 +12,11 @@ export function useCatalogEvents() {
 	const queryClient = useQueryClient()
 	const [connected, setConnected] = useState(false)
 	const [notice, setNotice] = useState('')
+	useEffect(() => {
+		if (!notice) return
+		const timer = window.setTimeout(() => setNotice(''), 6000)
+		return () => window.clearTimeout(timer)
+	}, [notice])
 
 	useEffect(() => {
 		if (loading) return

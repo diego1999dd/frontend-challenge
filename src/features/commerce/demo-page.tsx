@@ -34,6 +34,7 @@ export function DemoPage() {
 						['normal', 'Normal'],
 						['slow', 'Carregamento lento'],
 						['out-of-order', 'Respostas fora de ordem'],
+						['payment-pending', 'Pedido pendente por 60 segundos'],
 						['offline', 'Falha de conexão'],
 						['http-error', 'HTTP 503'],
 						['favorite-failure', 'Falha de favorito / rollback'],

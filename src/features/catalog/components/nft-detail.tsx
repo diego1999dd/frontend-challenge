@@ -16,23 +16,35 @@ import { useFavorite, useCartMutation } from '@/features/account/queries'
 import { ApiError } from '@/components/api-feedback'
 
 export function RelatedNfts({ id }: { id: string }) {
-	const query = useQuery(catalogOptions(parseCatalogSearch({})))
+	const [page, setPage] = useState(1)
+	const query = useQuery(catalogOptions(parseCatalogSearch({ page })))
 	const items =
-		query.data?.items.filter(
-			(n) => ['nft-4', 'nft-5', 'nft-6', 'nft-7', 'nft-9'].includes(n.id) && n.id !== id,
-		) ?? []
+		query.data?.items
+			.filter(
+				(n) =>
+					n.id !== id &&
+					(page !== 1 || ['nft-4', 'nft-5', 'nft-6', 'nft-7', 'nft-9'].includes(n.id)),
+			)
+			.slice(0, 5) ?? []
 	return (
 		<section className="detail-related" data-design="related" aria-labelledby="related-heading">
 			<h2 id="related-heading">Mais desta coleção</h2>
-			<div>
+			<div aria-busy={query.isFetching}>
 				{items.map((nft) => (
 					<NftCard key={nft.id} nft={nft} variant="related" />
 				))}
 			</div>
-			<div className="related-dots" aria-hidden="true">
-				<i />
-				<i />
-				<i />
+			<ApiError error={query.error} retry={() => void query.refetch()} />
+			<div className="related-dots" role="group" aria-label="Páginas de NFTs relacionados">
+				{[1, 2, 3].map((number) => (
+					<button
+						key={number}
+						type="button"
+						aria-label={`Ver relacionados ${number}`}
+						aria-pressed={page === number}
+						onClick={() => setPage(number)}
+					/>
+				))}
 			</div>
 		</section>
 	)
@@ -42,6 +54,10 @@ export function NftDetail({ nft }: { nft: Nft }) {
 	const [edition, setEdition] = useState('1/50')
 	const [quantity, setQuantity] = useState(1)
 	const [thumbnail, setThumbnail] = useState(0)
+	const gallery = nft.gallery?.length
+		? nft.gallery
+		: [{ image: nft.image, label: 'Arte completa', inset: '0%' }]
+	const selectedImage = gallery[thumbnail] ?? gallery[0]
 	const notice = useNotice()
 	const navigate = useNavigate()
 	const favoriteState = useFavorite(nft.id)
@@ -90,23 +106,36 @@ export function NftDetail({ nft }: { nft: Nft }) {
 								aria-pressed={favoriteState.selected}
 								disabled={favoriteState.pending}
 							>
-								<Heart size={20} />
+								<Heart size={20} fill={favoriteState.selected ? 'currentColor' : 'none'} />
 							</button>
 						</div>
-						<div className="detail-thumbnails">
-							{[0, 1, 2, 3].map((index) => (
+						<div className="detail-thumbnails" role="group" aria-label="Galeria do NFT">
+							{gallery.map((image, index) => (
 								<button
 									aria-label={`Ver imagem ${index + 1}`}
+									title={image.label}
 									aria-pressed={thumbnail === index}
 									onClick={() => setThumbnail(index)}
 									key={index}
 								>
-									<NftArtwork nft={nft} sizes="100px" loading="lazy" />
+									<NftArtwork
+										nft={{ name: nft.name, image: image.image }}
+										alt={image.label}
+										style={{ objectViewBox: `inset(${image.inset})` }}
+										sizes="100px"
+										loading="lazy"
+									/>
 								</button>
 							))}
 						</div>
 						<div className="detail-main-image">
-							<NftArtwork nft={nft} sizes={detailArtworkSizes} fetchPriority="high" />
+							<NftArtwork
+								nft={{ name: nft.name, image: selectedImage.image }}
+								alt={`${nft.name} — ${selectedImage.label}`}
+								style={{ objectViewBox: `inset(${selectedImage.inset})` }}
+								sizes={detailArtworkSizes}
+								fetchPriority="high"
+							/>
 						</div>
 						<Dialog.Root>
 							<Dialog.Trigger className="detail-zoom" aria-label="Ampliar imagem do NFT">
@@ -119,7 +148,12 @@ export function NftDetail({ nft }: { nft: Nft }) {
 									<Dialog.Description className="sr-only">
 										Arte digital da coleção {nft.collection}.
 									</Dialog.Description>
-									<NftArtwork nft={nft} sizes="(max-width: 848px) calc(100vw - 48px), 800px" />
+									<NftArtwork
+										nft={{ name: nft.name, image: selectedImage.image }}
+										alt={`${nft.name} — ${selectedImage.label}`}
+										style={{ objectViewBox: `inset(${selectedImage.inset})` }}
+										sizes="(max-width: 848px) calc(100vw - 48px), 800px"
+									/>
 									<Dialog.Close
 										aria-label="Fechar imagem ampliada"
 										className="absolute top-3 right-3 rounded-full bg-surface p-2"
@@ -156,7 +190,7 @@ export function NftDetail({ nft }: { nft: Nft }) {
 								<span className="desktop-copy">{nft.description}</span>
 								<span className="mobile-copy">
 									Um colecionável digital {edition} finalizado à mão da coleção Kurio Editions,
-									verificado na Ethereum.
+									verificado na {nft.network.charAt(0).toUpperCase() + nft.network.slice(1)}.
 								</span>
 							</p>
 						</div>
@@ -195,7 +229,7 @@ export function NftDetail({ nft }: { nft: Nft }) {
 									aria-pressed={favoriteState.selected}
 									disabled={favoriteState.pending}
 								>
-									<Heart size={20} />
+									<Heart size={20} fill={favoriteState.selected ? 'currentColor' : 'none'} />
 									Favoritar
 								</Button>
 							</div>
@@ -243,14 +277,14 @@ export function NftDetail({ nft }: { nft: Nft }) {
 							</dd>
 						</div>
 						<div>
-							<dt>Contrato:</dt>
+							<dt>Direitos autorais:</dt>
 							<dd>
 								Direitos autorais do criador: 5% nas vendas secundárias, pagos automaticamente pelos
 								mercados compatíveis.
 							</dd>
 						</div>
 						<div>
-							<dt>Direitos autorais:</dt>
+							<dt>Contrato:</dt>
 							<dd>0x7A42...19E8 · Contrato inteligente ERC-721 verificado.</dd>
 						</div>
 					</dl>

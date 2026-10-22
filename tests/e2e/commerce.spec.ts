@@ -205,6 +205,7 @@ test('cadastro, validação, perfil, avatar, senha e carteiras persistem', async
 	await expect(page).toHaveURL(/\/perfil$/)
 	await page.getByLabel('Nome de exibição', { exact: true }).fill('Colecionador Teste')
 	await page.getByLabel('Nome ENS', { exact: true }).fill('teste.eth')
+	await page.getByLabel('Apelido da carteira', { exact: true }).fill('Minha carteira')
 	await page.getByLabel('Nova senha', { exact: true }).fill('NovaSenha123!')
 	await page.getByLabel('Confirmar nova senha', { exact: true }).fill('outra')
 	await page.getByRole('button', { name: 'Salvar', exact: true }).click()
@@ -232,6 +233,9 @@ test('cadastro, validação, perfil, avatar, senha e carteiras persistem', async
 	await page.getByLabel('Rede', { exact: true }).selectOption('ethereum')
 	await page.getByLabel('Nome do perfil', { exact: true }).fill('colecionador')
 	await page.getByLabel('Tipo de carteira', { exact: true }).selectOption('MetaMask')
+	await page.getByLabel('Nome ENS', { exact: true }).fill('colecionador')
+	await page.getByLabel('Código de indicação', { exact: true }).fill('DEMO')
+	await page.getByLabel('E-mail', { exact: true }).fill('colecionador@kurio.test')
 	await page.getByLabel('Endereço da carteira', { exact: true }).fill('inválido')
 	await page.getByRole('button', { name: 'Salvar carteira', exact: true }).click()
 	await expect(page.getByText('Endereço incompatível com a rede selecionada.')).toBeVisible()
@@ -297,6 +301,38 @@ test('timeout recupera o mesmo pedido, idempotência e eventos antigos não dupl
 	expect(again.data).toHaveLength(1)
 	const quote = await api(page, 'POST', '/quotes', { network: 'ethereum' })
 	expect(quote.data.items).toHaveLength(0)
+})
+
+test('pedido pendente recupera a mesma compra após desconexão e refresh', async ({ page }) => {
+	await login(page)
+	await addNft(page)
+	await checkout(page)
+	await page.clock.install()
+	await api(page, 'POST', '/demo/scenario', { scenario: 'payment-pending' })
+	await page.getByRole('button', { name: 'Confirmar compra', exact: true }).click()
+	await expect(page.getByRole('heading', { name: 'Pedido pendente', exact: true })).toBeVisible()
+	const receiptURL = page.url()
+	const before = await api(page, 'GET', '/orders')
+	expect(before.data).toHaveLength(1)
+	expect(before.data[0].status).toBe('pending')
+	await api(page, 'POST', '/demo/socket/disconnect')
+	await page.reload()
+	await expect(page.getByRole('heading', { name: 'Pedido pendente', exact: true })).toBeVisible()
+	await page.clock.fastForward(61_000)
+	await expect(
+		page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' }),
+	).toBeVisible()
+	await expect(page).toHaveURL(receiptURL)
+	const after = await api(page, 'GET', '/orders')
+	expect(after.data).toHaveLength(1)
+	expect(after.data[0].id).toBe(before.data[0].id)
+	expect(after.data[0].status).toBe('confirmed')
+	await api(page, 'POST', `/demo/orders/${after.data[0].id}/replay`)
+	await page.reload()
+	await expect(
+		page.getByRole('heading', { name: 'Seus NFTs agora estão na sua carteira' }),
+	).toBeVisible()
+	expect((await api(page, 'GET', '/orders')).data).toHaveLength(1)
 })
 
 test('preço muda na confirmação e exige revisar a nova cotação', async ({ page }) => {

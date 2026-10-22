@@ -76,13 +76,13 @@ export function Footer() {
 			</div>
 			<div className="market-footer__contact">
 				<Brand />
-				<p>
+				<p className="text-foreground">
 					Feito para colecionadores,
 					<br />
 					criadores e cultura
 				</p>
-				<span>contato@email.com</span>
-				<span>+55 11 4002 8922</span>
+				<span className="text-foreground">contato@email.com</span>
+				<span className="text-foreground">+55 11 4002 8922</span>
 			</div>
 			<div className="market-footer__links">
 				{columns.map((column) => (

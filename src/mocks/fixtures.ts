@@ -39,6 +39,12 @@ const categoryValues = [
 
 export const initialNfts: Nft[] = Array.from({ length: 36 }, (_, index) => ({
 	...artworks[index % 9],
+	gallery: [
+		{ image: artworks[index % 9].image, label: 'Arte completa', inset: '0%' },
+		{ image: artworks[index % 9].image, label: 'Detalhe central', inset: '20%' },
+		{ image: artworks[index % 9].image, label: 'Detalhe superior', inset: '0% 20% 40%' },
+		{ image: artworks[index % 9].image, label: 'Detalhe inferior', inset: '40% 20% 0%' },
+	],
 	id: `nft-${index + 1}`,
 	name:
 		index < 9

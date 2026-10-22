@@ -18,7 +18,12 @@ export function CommerceHeader({ title }: { title: string }) {
 				<Link to="/">Início</Link> / <Link to="/">Mercado</Link> / {title}
 			</nav>
 			<div className="commerce-mobile-heading">
-				<Link to="/" aria-label="Voltar ao catálogo">
+				<Link
+					to={title === 'Pagamento com carteira' ? '/carrinho' : '/'}
+					aria-label={
+						title === 'Pagamento com carteira' ? 'Voltar ao carrinho' : 'Voltar ao catálogo'
+					}
+				>
 					<ChevronLeft size={20} />
 				</Link>
 				<h1>{title}</h1>

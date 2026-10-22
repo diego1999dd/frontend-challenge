@@ -6,6 +6,7 @@ import { useSession } from '@/features/account/session-context'
 import { useCart, useQuote, walletsOptions } from '@/features/account/queries'
 import type { Collector, Network, Order, Quote } from '@/features/account/contracts'
 import { AccountField, AccountSelect } from '@/components/account-field'
+import { EnsField } from '@/components/ens-field'
 import { ApiError, FormSkeleton } from '@/components/api-feedback'
 import { PageState } from '@/components/page-state'
 import { Button } from '@/components/ui/button'
@@ -179,9 +180,10 @@ function CheckoutForm({
 						<h1>Perfil do colecionador</h1>
 						<div className="account-fields">
 							{field('Nome de exibição', 'name')}
-							<AccountField label="Nome de usuário" value={username} readOnly />
+							<AccountField label="Nome de usuário" value={username} readOnly required />
 							<AccountSelect
 								label="Rede"
+								required
 								value={network}
 								onChange={(event) => {
 									setNetwork(event.target.value as Network)
@@ -196,17 +198,37 @@ function CheckoutForm({
 									</option>
 								))}
 							</AccountSelect>
-							<AccountField label="Nome do perfil" value={wallet?.profileName || ''} readOnly />
-							<AccountField label="Endereço da carteira" value={wallet?.address || ''} readOnly />
+							<AccountField
+								label="Nome do perfil"
+								value={wallet?.profileName || ''}
+								readOnly
+								required
+							/>
+							<AccountField
+								label="Endereço da carteira"
+								value={wallet?.address || ''}
+								readOnly
+								required
+							/>
 							<AccountField
 								label="ENS ou carteira secundária"
 								value={wallets.data.find((other) => other.id !== wallet?.id)?.address || ''}
 								readOnly
 							/>
-							<AccountField label="Tipo de carteira" value={wallet?.provider || ''} readOnly />
-							<AccountField label="Código de indicação" value={wallet?.referral || ''} readOnly />
+							<AccountField
+								label="Tipo de carteira"
+								value={wallet?.provider || ''}
+								readOnly
+								required
+							/>
+							<AccountField
+								label="Código de indicação"
+								value={wallet?.referral || ''}
+								readOnly
+								required
+							/>
 							{field('E-mail', 'email', 'email')}
-							<AccountField label="Nome ENS" value={wallet?.ens || ''} readOnly />
+							<EnsField key={wallet?.id || 'no-wallet'} defaultValue={wallet?.ens || ''} readOnly />
 						</div>
 						<FormField label="Observação do colecionador (opcional)" className="collector-note">
 							{(props) => (
@@ -240,7 +262,7 @@ function CheckoutForm({
 								? connection === 'connected'
 									? 'Carteira conectada'
 									: 'Selecione uma carteira'
-								: 'Carteira e rede'}
+								: 'Carteira cadastrada'}
 						</h2>
 						{wallets.data.length ? (
 							wallets.data.map((item) => (
@@ -273,7 +295,7 @@ function CheckoutForm({
 								<Link to="/carteiras">Adicionar carteira</Link>
 							</p>
 						)}
-						{mobile && (
+						{
 							<div className="connection-providers">
 								<h2>Carteira e rede</h2>
 								{['WalletConnect', 'MetaMask', 'Coinbase'].map((provider) => (
@@ -288,6 +310,8 @@ function CheckoutForm({
 											const item = wallets.data.find((item) => item.provider === provider)!
 											setWalletId(item.id)
 											setNetwork(item.network)
+											setConnection('disconnected')
+											setReviewOpen(false)
 											setConnectOpen(true)
 										}}
 									>
@@ -297,7 +321,11 @@ function CheckoutForm({
 									</button>
 								))}
 							</div>
-						)}
+						}
+						<p>
+							Escolha uma carteira cadastrada. Os provedores abaixo simulam a conexão, sem extensões
+							reais. <Link to="/carteiras">Gerenciar carteiras</Link>
+						</p>
 						<p role="status">
 							{connection === 'connected'
 								? 'Carteira conectada na simulação'

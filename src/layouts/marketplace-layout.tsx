@@ -10,6 +10,8 @@ export function MarketplaceLayout() {
 	const pathname = useRouterState({ select: (state) => state.location.pathname })
 	const isHome = pathname === '/'
 	const isAuth = ['/login', '/cadastro'].includes(pathname)
+	const hasMobileNavigation =
+		isHome || ['/perfil', '/carteiras', '/favoritos', '/pedidos'].includes(pathname)
 	const isAccount = ['/perfil', '/carteiras', '/favoritos', '/pedidos'].includes(pathname)
 	const isCommerce =
 		pathname === '/carrinho' || pathname === '/pagamento' || pathname.startsWith('/pedidos/')
@@ -36,7 +38,7 @@ export function MarketplaceLayout() {
 					{connected ? 'Tempo real conectado' : 'Tempo real desconectado'}
 				</span>
 			</div>
-			{isHome && <MobileNavigation />}
+			{hasMobileNavigation && <MobileNavigation />}
 		</NoticeProvider>
 	)
 }

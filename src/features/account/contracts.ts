@@ -16,6 +16,7 @@ export interface Session {
 	expiresAt?: number
 }
 export interface Wallet {
+	secondaryAddress?: string
 	id: string
 	name: string
 	alias: string

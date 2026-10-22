@@ -70,8 +70,8 @@ async function seed() {
 				username: name,
 				email: `${name}@kurio.test`,
 				bio: '',
-				walletAlias: '',
-				ens: '',
+				walletAlias: 'Principal',
+				ens: `${name}.eth`,
 				avatar: '',
 				salt,
 				passwordHash: await passwordHash('Demo123!', salt),
@@ -85,9 +85,9 @@ async function seed() {
 						address: `0x${String(index + 1).repeat(40)}`,
 						provider: 'MetaMask',
 						profileName: name,
-						referral: '',
+						referral: 'DEMO',
 						email: `${name}@kurio.test`,
-						ens: '',
+						ens: `${name}.eth`,
 						primary: true,
 					},
 				],
@@ -114,11 +114,19 @@ export async function database(): Promise<Database> {
 	}
 	const db = JSON.parse(localStorage.getItem(databaseKey)!) as Database
 	let migrated = false
-	for (const nft of db.nfts)
+	for (const nft of db.nfts) {
 		if (nft.image.startsWith('/images/nfts/') && nft.image.endsWith('.png')) {
 			nft.image = nft.image.replace(/\.png$/, '.avif')
 			migrated = true
 		}
+		if (!nft.gallery?.length) {
+			const gallery = initialNfts.find((initial) => initial.id === nft.id)?.gallery
+			if (gallery) {
+				nft.gallery = gallery.map((view) => ({ ...view, image: nft.image }))
+				migrated = true
+			}
+		}
+	}
 	if (migrated) saveDatabase(db)
 	return db
 }

@@ -2,12 +2,13 @@ import { useState, type ComponentProps } from 'react'
 import { FormField } from './form-field'
 import { Input, fieldClassName } from './ui/input'
 import { Icon } from './icon'
+import { Eye } from 'lucide-react'
 
 type FieldProps = ComponentProps<'input'> & { label: string; error?: string; hint?: string }
 export function AccountField({ label, error, hint, type, ...props }: FieldProps) {
 	const [shown, setShown] = useState(false)
 	return (
-		<FormField label={label} error={error} hint={hint}>
+		<FormField label={label} error={error} hint={hint} required={props.required}>
 			{(aria) => (
 				<div className="account-field-input">
 					<Input {...aria} {...props} type={type === 'password' && shown ? 'text' : type} />
@@ -18,8 +19,12 @@ export function AccountField({ label, error, hint, type, ...props }: FieldProps)
 								shown ? `Ocultar ${label.toLowerCase()}` : `Mostrar ${label.toLowerCase()}`
 							}
 							onClick={() => setShown(!shown)}
+							aria-pressed={shown}
+							className="password-toggle"
 						>
-							<Icon name="hide" />
+							<span key={String(shown)} className="password-toggle-icon">
+								{shown ? <Eye size={20} /> : <Icon name="hide" />}
+							</span>
 						</button>
 					)}
 				</div>
@@ -34,7 +39,7 @@ export function AccountSelect({
 	...props
 }: ComponentProps<'select'> & { label: string; error?: string }) {
 	return (
-		<FormField label={label} error={error}>
+		<FormField label={label} error={error} required={props.required}>
 			{(aria) => (
 				<select {...aria} {...props} className={fieldClassName}>
 					{children}

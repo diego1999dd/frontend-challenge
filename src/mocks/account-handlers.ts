@@ -295,7 +295,8 @@ export const accountHandlers = [
 			fields.username = 'Informe um nome de usuário válido.'
 		if (!emailValid(body.email || '')) fields.email = 'Informe um e-mail válido.'
 		if (body.bio?.length > 500) fields.bio = 'Use até 500 caracteres.'
-		if (body.ens && !/^[a-z0-9-]+\.eth$/i.test(body.ens)) fields.ens = 'Use um nome .eth válido.'
+		if (!/^[a-z0-9-]+\.eth$/i.test(body.ens || '')) fields.ens = 'Use um nome .eth válido.'
+		if (!body.walletAlias?.trim()) fields.walletAlias = 'Informe o apelido da carteira.'
 		if (
 			body.avatar &&
 			(!/^data:image\/(png|jpeg|webp);base64,/.test(body.avatar) || body.avatar.length > 1_400_000)
@@ -391,14 +392,23 @@ export const accountHandlers = [
 		if (!['MetaMask', 'WalletConnect', 'Coinbase', 'Phantom'].includes(body.provider))
 			fields.provider = 'Selecione um tipo de carteira.'
 		if (!body.profileName?.trim()) fields.profileName = 'Informe o nome do perfil.'
-		if (body.email && !emailValid(body.email)) fields.email = 'Informe um e-mail válido.'
-		if (body.ens && !/^[a-z0-9-]+\.eth$/i.test(body.ens)) fields.ens = 'Use um nome .eth válido.'
+		if (!emailValid(body.email || '')) fields.email = 'Informe um e-mail válido.'
+		if (!/^[a-z0-9-]+\.eth$/i.test(body.ens || '')) fields.ens = 'Use um nome .eth válido.'
+		if (!body.referral?.trim()) fields.referral = 'Informe o código de indicação fictício.'
+		if (
+			body.secondaryAddress &&
+			!/^(?:0x[a-fA-F0-9]{40}|[a-z0-9-]+\.eth|[1-9A-HJ-NP-Za-km-z]{32,44})$/i.test(
+				body.secondaryAddress,
+			)
+		)
+			fields.secondaryAddress = 'Informe um ENS ou endereço público válido.'
 		if (Object.keys(fields).length) validation(fields)
 		const current = user.wallets.find((wallet) => wallet.id === params.id)
 		if (params.id !== 'new' && !current) fail(404, 'NOT_FOUND', 'Carteira não encontrada.')
 		if (!current && user.wallets.length >= 2)
 			fail(409, 'WALLET_LIMIT', 'São permitidas duas carteiras.')
 		const wallet: Wallet = {
+			secondaryAddress: body.secondaryAddress || '',
 			id: current?.id || crypto.randomUUID(),
 			name: body.name.trim(),
 			alias: body.alias.trim(),
@@ -605,7 +615,7 @@ export const accountHandlers = [
 			transaction: '',
 			message: 'Pagamento pendente na simulação.',
 			fingerprint,
-			readyAt: Date.now() + 1800,
+			readyAt: Date.now() + (db.scenario === 'payment-pending' ? 60_000 : 1800),
 			refuse: db.scenario === 'payment-declined',
 		}
 		db.orders[id] = order
@@ -638,6 +648,7 @@ export const accountHandlers = [
 				'coupon-expired',
 				'price-changed',
 				'payment-declined',
+				'payment-pending',
 				'order-timeout',
 			].includes(scenario)
 		)
