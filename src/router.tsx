@@ -3,6 +3,7 @@ import {
 	createRoute,
 	createRouter,
 	Link,
+	stripSearchParams,
 	type SearchSchemaInput,
 } from '@tanstack/react-router'
 import { lazy, Suspense, type ReactNode } from 'react'
@@ -80,7 +81,14 @@ const rootRoute = createRootRoute({
 			kind="error"
 			title="Não foi possível abrir esta página"
 			description="Tente novamente em alguns instantes."
-			action={<Button onClick={reset}>Tentar novamente</Button>}
+			action={
+				<div className="flex flex-wrap gap-3">
+					<Button onClick={reset}>Tentar novamente</Button>
+					<Button variant="outline" onClick={() => location.reload()}>
+						Recarregar aplicação
+					</Button>
+				</div>
+			}
 		/>
 	),
 })
@@ -90,6 +98,7 @@ export const catalogRoute = createRoute({
 	path: '/',
 	validateSearch: (search: Partial<CatalogSearch> & SearchSchemaInput) =>
 		parseCatalogSearch({ ...search }),
+	search: { middlewares: [stripSearchParams(parseCatalogSearch({}))] },
 	component: CatalogPage,
 })
 export const nftRoute = createRoute({
@@ -210,6 +219,7 @@ export const router = createRouter({
 		demoRoute,
 	]),
 	defaultPreload: 'intent',
+	defaultViewTransition: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 	scrollRestoration: true,
 })
 

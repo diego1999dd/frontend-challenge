@@ -7,6 +7,9 @@ import { preloadInitialCatalog } from '@/features/catalog/preload'
 import { router } from './router'
 import { SessionProvider } from './features/account/session-provider'
 import './styles/global.css'
+import { recoverStaleChunk } from '@/lib/chunk-recovery'
+
+recoverStaleChunk()
 
 async function bootstrap() {
 	if (import.meta.env.VITE_ENABLE_MOCKS !== 'false') {
