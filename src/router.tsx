@@ -16,13 +16,10 @@ import { ProtectedPage } from '@/features/account/protected-page'
 import { ProfilePage } from '@/features/account/profile-page'
 import { WalletsPage } from '@/features/account/wallets-page'
 import { FavoritesPage } from '@/features/account/favorites-page'
-
-function PendingPage({ title = 'Em preparação' }: { title?: string }) { return <PageState title={title} description="Tela prevista para a próxima etapa de integração." /> }
-const CartPage = PendingPage
-const CheckoutPage = PendingPage
-const OrderPage = PendingPage
-const OrdersPage = PendingPage
-const DemoPage = PendingPage
+import { CartPage } from '@/features/commerce/cart-page'
+import { CheckoutPage } from '@/features/commerce/checkout-page'
+import { OrderPage, OrdersPage } from '@/features/commerce/orders-page'
+import { DemoPage } from '@/features/commerce/demo-page'
 
 const rootRoute = createRootRoute({
 	component: MarketplaceLayout,

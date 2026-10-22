@@ -4,6 +4,7 @@
 @import './marketplace.css';
 @import './detail.css';
 @import './account.css';
+@import './commerce.css';
 
 @theme {
 	/* Kurio — Figma / Design Tokens. Raw palette values live here only. */
