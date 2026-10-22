@@ -55,9 +55,12 @@ Exports originais: `tests/visual/references`. Baselines Chromium/Windows: `tests
 
 As baselines são capturas da implementação e não afirmam equivalência pixel a pixel com o Figma. A inspeção compara os exports do Figma com o navegador. Há cobertura de 1440px, 768px, 390px e capturas mobile em 414×896; 768/390 são adaptações fluidas, sem frame original nesses tamanhos.
 
-Em 22/10/2026, oito baselines de detalhe/carrinho/checkout foram atualizadas após revisão das diferenças de rasterização das imagens responsivas. Nenhuma medida de layout ou tolerância de screenshot foi alterada. As 15 verificações visuais passaram na suíte completa seguinte, sem atualização de snapshots.
+Na primeira rodada de desempenho em 22/10/2026, oito baselines de detalhe/carrinho/checkout foram atualizadas após revisar a rasterização das imagens responsivas. Na revisão posterior de `CORRECOES.md`, treze baselines receberam os ajustes de botões, campos, foco, footer, navegação e carrosséis; as diferenças foram revisadas antes da atualização. As medidas verificadas dos frames desktop e as tolerâncias de screenshot foram preservadas. Os pontos dos carrosséis mantêm 7/8/12px, com controles e espaçamento ampliados para alvos de ao menos 24×24px por acessibilidade. Veja `docs/corrections-review.md` para decisões e cobertura.
 
 ## Diferenças e limites deliberados
+
+- Na revisão final, a galeria passou a oferecer enquadramentos reais da mesma arte. As miniaturas mobile são uma extensão funcional acessível do frame; não foram adicionadas imagens de outros NFTs. Os três snapshots de detalhe foram revisados, mantendo as asserções de geometria desktop e as tolerâncias anteriores.
+- Há adaptação adicional abaixo de 390px para reflow, com quebra de linha dos filtros e destaque mais compacto, sem ocultação global de overflow.
 
 - As contagens de coleções/redes vêm das 36 fixtures, não dos números ilustrativos do Figma. O badge do carrinho reflete os itens reais da sessão, iniciando vazio.
 - O oitavo card desktop sem legenda no Figma recebe nome/preço para manter o catálogo utilizável e acessível.
@@ -68,4 +71,4 @@ Em 22/10/2026, oito baselines de detalhe/carrinho/checkout foram atualizadas ap�
 - Login, cadastro, perfil, carteiras, favoritos, carrinho, checkout e pedidos estão implementados com persistência local. A confirmação aparece somente após o pedido simulado chegar ao estado confirmado.
 - Estados de erro, confirmação de carteira, revisão da cotação, pedidos e adaptações mobile sem frame específico são extensões funcionais, não cópias de telas inexistentes no Figma. Não há campos de entrega física para NFTs.
 - O checkout mobile prioriza carteiras como na referência; dados do colecionador ficam em diálogo acessível. Preços, estoque, quantidades e totais vêm do mock, não dos números ilustrativos dos frames.
-- Relatórios locais ficam em `reports/lighthouse`; a medição usa o build de produção com mocks ativos. Uma versão anterior foi publicada e verificada no Edge; sua auditoria está em `reports/lighthouse-published`. As otimizações locais desta rodada ainda precisam ser publicadas.
+- Relatórios locais ficam em `reports/lighthouse`; a medição usa o build de produção com mocks ativos. Uma versão anterior foi publicada e verificada no Edge; seus relatórios históricos foram arquivados fora do repositório. As correções de UI desta revisão ainda precisam ser integradas e publicadas.

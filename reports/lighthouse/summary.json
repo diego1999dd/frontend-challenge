@@ -9,24 +9,24 @@
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 2846.2796499999995,
+      "largest-contentful-paint": 2833.2503500000003,
       "cumulative-layout-shift": 0.04860267314702309,
-      "total-blocking-time": 19
+      "total-blocking-time": 15
     }
   },
   {
     "profile": "mobile",
     "page": "detail",
     "scores": {
-      "performance": 90,
+      "performance": 89,
       "accessibility": 100,
       "best-practices": 100,
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 3050.124675,
+      "largest-contentful-paint": 3267.2442499999997,
       "cumulative-layout-shift": 0,
-      "total-blocking-time": 24
+      "total-blocking-time": 14
     }
   },
   {
@@ -39,7 +39,7 @@
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 772.23965,
+      "largest-contentful-paint": 747.18095,
       "cumulative-layout-shift": 0.01777777777777778,
       "total-blocking-time": 0
     }
@@ -54,7 +54,7 @@
       "seo": 100
     },
     "metrics": {
-      "largest-contentful-paint": 743.2858000000001,
+      "largest-contentful-paint": 789.4578000000001,
       "cumulative-layout-shift": 0.01777777777777778,
       "total-blocking-time": 0
     }

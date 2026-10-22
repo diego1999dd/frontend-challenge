@@ -42,7 +42,7 @@ As contas iniciais têm uma carteira Ethereum fictícia. Novos cadastros começa
 
 O catálogo tem 36 NFTs, nove por página. `nft-2` possui a edição `1/1` indisponível; `nft-36` está esgotado. O cupom `KURIO10` desconta 10%; `EXPIRADO` exercita expiração. Preços, descontos e taxas são calculados no mock da API em wei com BigInt.
 
-Abra [/demo](http://127.0.0.1:5173/demo) para selecionar cenários reproduzíveis: carregamento lento, respostas fora de ordem, falha de conexão, HTTP 503, falha de favorito com rollback, cupom expirado, preço alterado, pagamento recusado e timeout após criação do pedido. O painel continua acessível durante os cenários de falha. Selecione **Normal** para recuperar a rede simulada.
+Abra [/demo](http://127.0.0.1:5173/demo) para selecionar cenários reproduzíveis: carregamento lento, respostas fora de ordem, falha de conexão, HTTP 503, falha de favorito com rollback, cupom expirado, preço alterado, pagamento recusado, pedido pendente por 60 segundos e timeout após criação do pedido. O painel continua acessível durante os cenários de falha. Selecione **Normal** para recuperar a rede simulada.
 
 **Restaurar cenário inicial** pede confirmação e apaga somente os dados fictícios Kurio deste navegador: cadastros, sessões, favoritos, carteiras, carrinhos, pedidos e rascunhos. Não remove outros dados do navegador. Recarregar a página não reseta o cenário nem os dados.
 
@@ -69,7 +69,7 @@ Baselines: `tests/e2e/*-snapshots`. Exports originais do Figma: `tests/visual/re
 pnpm test:e2e --update-snapshots
 ```
 
-O relatório HTML é gerado em `playwright-report`; traces e screenshots de falhas ficam em `test-results`. A suíte completa local passou os **60 testes** em 22/10/2026. O HTML dessa rodada é gerado localmente, não incluído neste commit; relatórios anteriormente versionados são históricos. Inclui filtros codificados na URL e navegação entre páginas sob demanda sem erros do React. Oito baselines foram atualizadas após revisar as diferenças de rasterização das imagens responsivas; depois a suíte completa, incluindo as **15 verificações visuais**, passou sem atualizar snapshots. Não foram alteradas medidas de layout nem tolerâncias dos testes. O relatório em `reports/playwright-reviewed-failures` preserva traces históricos de diferenças já resolvidas, não falhas pendentes. As baselines detectam regressões da implementação, não equivalência absoluta de pixels com o Figma.
+O relatório HTML é gerado em `playwright-report`; traces e screenshots de falhas ficam em `test-results`. A execução final de 22/10/2026 passou os **96 testes: 32 cenários nos três tamanhos**, incluindo **15 verificações visuais**; sua cópia HTML está em `reports/playwright/index.html`. As baselines foram revisadas nas correções de UI e galeria; a execução completa final não atualizou snapshots. As tolerâncias e as asserções independentes de geometria do Figma foram preservadas. Os traces em `reports/playwright-reviewed-failures` são históricos de diferenças resolvidas. As baselines não afirmam equivalência absoluta de pixels com o Figma.
 
 Os PNGs originais foram preservados e têm cópias AVIF de alta qualidade para entrega, reduzindo aproximadamente 8 MB para 0,85 MB nas quatro artes em resolução original. Cards e galeria também oferecem variantes de 384/768px por `srcset`/`sizes`; a versão de 1254px continua disponível para telas maiores e zoom. Logo, ícones e imagens são locais. A fonte Roboto Mono também é empacotada localmente.
 
@@ -81,10 +81,18 @@ A sessão e a base simulada ficam no armazenamento local. Senhas são derivadas 
 
 As integrações editoriais, sociais e de suporte fora do escopo exibem aviso coerente; não simulam sucesso. As conexões Socket.IO simuladas são locais à aba; não há sincronização de eventos entre dispositivos. A persistência compartilhada por abas usa Web Locks para evitar sobrescritas concorrentes.
 
-Versão pública: [frontend-challenge.diego-9090dd.workers.dev](https://frontend-challenge.diego-9090dd.workers.dev). Após configurar o fallback SPA no Wrangler, acesso direto ao perfil/detalhe/checkout, login e recuperação do recibo após refresh foram verificados no Edge. Essa verificação não representa uma execução da suíte completa na hospedagem. As otimizações locais de carregamento ainda precisam ser publicadas; a medição pública corresponde à versão anterior.
+Versão pública: [frontend-challenge.diego-9090dd.workers.dev](https://frontend-challenge.diego-9090dd.workers.dev). Fallback SPA, acesso direto, login, compra e refresh do recibo foram verificados no Edge na versão anterior. Isso não representa uma execução da suíte completa na hospedagem. As otimizações de carga foram publicadas; as correções de UI/interações desta revisão ainda são locais e precisam de publicação e conferência em produção.
 
 Arquitetura e contratos: [ARCHITECTURE.md](./ARCHITECTURE.md). Fidelidade e desvios: [docs/design-verification.md](./docs/design-verification.md).
 
-Auditoria histórica da **URL pública em 22/10/2026**: performance **93 no mobile e 100 no desktop** nas duas páginas; acessibilidade, boas práticas e SEO **100** em todos os perfis. São medianas de três execuções independentes por página/perfil, com os mocks ativos. Todas as metas de nota do desafio foram atendidas nessa rodada da versão anterior. Os relatórios públicos detalhados foram mantidos localmente, fora deste commit.
+Auditoria histórica da **URL pública em 22/10/2026**, após otimizar a carga inicial e antes desta revisão: performance **93/94 no mobile (Home/detalhe) e 100 no desktop**, com acessibilidade, boas práticas e SEO **100**. São medianas de três execuções independentes por página/perfil, com mocks ativos. Os relatórios públicos foram mantidos fora do repositório. Isso não comprova a publicação das correções posteriores.
 
-A auditoria **local após otimização em 22/10/2026**, com `pnpm build` e `pnpm run audit`, registrou performance **91/90 no mobile (Home/detalhe)** e **99/99 no desktop**, com as outras categorias em **100**. São medianas de três execuções por página/perfil, mantendo mocks, latências e configuração da auditoria. Antes, o resultado local era 89/88 no mobile. [Medianas locais](./reports/lighthouse/SUMMARY.md) e [análise local](./reports/lighthouse/ANALYSIS.md). A execução pública usa condições diferentes; os resultados não isolam a causa da diferença nem garantem notas futuras.
+Auditoria local reproduzível com `pnpm build` e `pnpm run audit`: [medianas locais](./reports/lighthouse/SUMMARY.md) e [análise local](./reports/lighthouse/ANALYSIS.md). Mocks, latências e configuração foram mantidos. Antes desta revisão, o resultado era 91/90 no mobile e 99/99 no desktop. A execução pública usa condições diferentes; as notas não isolam a causa da diferença nem garantem resultados futuros.
+
+## Revisão de UI e interações
+
+Perfil e carteiras seguem os campos obrigatórios do layout: preencha apelido e um ENS fictício `nome.eth`. O composto ENS tem seletor `.eth` e nome separado, aceitando também colar o nome completo. Em Carteiras, informe rede, provedor, e-mail e `DEMO` como indicação fictícia (não é cupom). O provedor no pagamento só fica disponível se existe uma carteira cadastrada dele; trocar provedor exige nova autorização simulada. Copiar a principal preenche o formulário secundário, sem compartilhar seu estado após salvar. Bases antigas não são apagadas: complete os campos novos ao salvar ou use o reset explícito.
+
+Favicon e card social: `public/favicon.svg` e `public/og-image.png` (1200×630). Para regenerar o PNG, com `pnpm dev:mocks` ativo, execute `node scripts/generate-social-card.mjs`. Atualize as URLs absolutas de Open Graph/Twitter no `index.html` se mudar o domínio.
+
+Veja [correções iniciais](./docs/corrections-review.md) e [fechamento da revisão](./docs/final-review.md). A captura de erro genérico não foi reproduzida; a recuperação de chunk foi testada como caso específico, não apresentada como causa confirmada.
