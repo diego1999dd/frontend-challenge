@@ -223,8 +223,10 @@ export const router = createRouter({
 	// Overlapping snapshots can otherwise leave an outgoing slider on screen.
 	defaultViewTransition: window.CSS?.supports('selector(:active-view-transition-type(page))')
 		? {
-				types: ({ pathChanged }) =>
-					pathChanged && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+				types: ({ pathChanged, fromLocation }) =>
+					fromLocation &&
+					pathChanged &&
+					!window.matchMedia('(prefers-reduced-motion: reduce)').matches
 						? ['page']
 						: false,
 			}

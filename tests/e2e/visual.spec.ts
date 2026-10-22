@@ -10,7 +10,10 @@ for (const [name, path] of [
 		await expect(page.getByRole('heading', { name: 'Emerald Ape #042', exact: true })).toBeVisible()
 		// Related NFTs resolve in a separate query after the detail heading is visible.
 		// Wait for that content before enumerating images or capturing the full page.
-		if (name === 'detail') await expect(page.locator('.detail-related article')).toHaveCount(5)
+		if (name === 'detail')
+			await expect(page.locator('.detail-related article')).toHaveCount(
+				testInfo.project.name === 'mobile' ? 0 : 5,
+			)
 		await page.evaluate(async () => {
 			await document.fonts.ready
 			await Promise.all(

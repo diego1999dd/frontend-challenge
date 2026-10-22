@@ -10,9 +10,19 @@ async function login(page: Page, redirect = '/perfil') {
 }
 
 test('galeria seleciona enquadramentos reais e mantém informações corretas', async ({ page }) => {
+	await page.addInitScript(() => {
+		if (!document.startViewTransition) return
+		document.startViewTransition = new Proxy(document.startViewTransition, {
+			apply(target, context, args) {
+				sessionStorage.setItem('kurio-test-transition', 'started')
+				return Reflect.apply(target, context, args)
+			},
+		})
+	})
 	await page.goto('/nfts/nft-1')
 	const image = page.locator('.detail-main-image img')
 	await expect(image).toHaveAttribute('alt', /Arte completa/)
+	expect(await page.evaluate(() => sessionStorage.getItem('kurio-test-transition'))).toBeNull()
 	await page.getByRole('button', { name: 'Ver imagem 2', exact: true }).click()
 	await expect(image).toHaveAttribute('alt', /Detalhe central/)
 	await expect(image).toHaveCSS('object-view-box', 'inset(20%)')

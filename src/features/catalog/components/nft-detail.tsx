@@ -14,10 +14,15 @@ import { parseCatalogSearch, type Nft } from '../contracts'
 import { catalogOptions } from '../queries'
 import { useFavorite, useCartMutation } from '@/features/account/queries'
 import { ApiError } from '@/components/api-feedback'
+import { useMobile } from '@/lib/use-mobile'
 
 export function RelatedNfts({ id }: { id: string }) {
 	const [page, setPage] = useState(1)
-	const query = useQuery(catalogOptions(parseCatalogSearch({ page })))
+	const mobile = useMobile()
+	const query = useQuery({ ...catalogOptions(parseCatalogSearch({ page })), enabled: !mobile })
+	// This section is not present in the mobile design. Do not fetch/render an
+	// invisible catalogue while the actual NFT and its gallery are loading.
+	if (mobile) return null
 	const items =
 		query.data?.items
 			.filter(
@@ -132,7 +137,11 @@ export function NftDetail({ nft }: { nft: Nft }) {
 							<NftArtwork
 								nft={{ name: nft.name, image: selectedImage.image }}
 								alt={`${nft.name} — ${selectedImage.label}`}
-								style={{ objectViewBox: `inset(${selectedImage.inset})` }}
+								style={
+									selectedImage.inset === '0%'
+										? undefined
+										: { objectViewBox: `inset(${selectedImage.inset})` }
+								}
 								sizes={detailArtworkSizes}
 								fetchPriority="high"
 							/>

@@ -1,6 +1,14 @@
 import type { Nft } from '@/features/catalog/contracts'
 import { nftImages } from '@/lib/assets'
 
+// PBKDF2-SHA256, 100,000 iterations, 32 bytes, with the fictional v2 salts.
+// Precompute the demo seed, not authentication: login/password changes still
+// derive and verify their hashes. This avoids repeating fixed work on startup.
+export const initialPasswordHashes: Record<string, string> = {
+	ana: 'e80f663ecb0fb1b5a612928cbd57af69b04ed35e1a13505c6bef464b6ef2d59c',
+	bruno: '9b7983dea804d64cbb240f9a8b6305218bc0a120590d82f1eb5ce5d3be77d255',
+}
+
 const artworks = [
 	{ name: 'Emerald Ape #042', price: '1.19', image: nftImages.emerald, artworkOffset: 31 },
 	{ name: 'Sage Nomad #009', price: '1.69', image: nftImages.sage, artworkOffset: 25 },
