@@ -14,7 +14,7 @@ pnpm exec playwright install chromium
 pnpm dev:mocks
 ```
 
-Abra [http://127.0.0.1:5173](http://127.0.0.1:5173). O Vite pode escolher outra porta caso ela esteja ocupada. Não é necessário criar `.env`.
+Abra [http://127.0.0.1:5173](http://127.0.0.1:5173). A porta 5173 deve estar livre: o servidor usa `strictPort` e não escolhe outra automaticamente. Não é necessário criar `.env`.
 
 | Comando             | Finalidade                                            |
 | ------------------- | ----------------------------------------------------- |
@@ -25,7 +25,7 @@ Abra [http://127.0.0.1:5173](http://127.0.0.1:5173). O Vite pode escolher outra 
 | `pnpm lint`         | ESLint sem warnings                                   |
 | `pnpm format:check` | Conferir formatação                                   |
 | `pnpm test:e2e`     | E2E e regressão visual em Chromium                    |
-| `pnpm test:report`  | Abrir o relatório HTML do Playwright                  |
+| `pnpm test:report`  | Abrir o relatório gerado após executar os testes      |
 | `pnpm run audit`    | Lighthouse: três medições por página/perfil           |
 | `pnpm audit --prod` | Auditoria de dependências de produção, não Lighthouse |
 
@@ -46,6 +46,20 @@ Abra [/demo](http://127.0.0.1:5173/demo) para selecionar cenários reproduzívei
 
 **Restaurar cenário inicial** pede confirmação e apaga somente os dados fictícios Kurio deste navegador: cadastros, sessões, favoritos, carteiras, carrinhos, pedidos e rascunhos. Não remove outros dados do navegador. Recarregar a página não reseta o cenário nem os dados.
 
+Para exercitar falhas, selecione uma opção no `/demo` e siga o fluxo correspondente; volte a **Normal** entre cenários. Não é necessário resetar os dados para recuperar a rede.
+
+| Cenário                     | Como reproduzir e verificar                                                                              |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Carregamento lento          | Abra um detalhe após selecionar; aparece skeleton antes do conteúdo.                                     |
+| HTTP 503 / falha de conexão | Abra o catálogo; confira o erro, volte a Normal e tente novamente.                                       |
+| Falha de favorito           | Autentique, abra um NFT e alterne o coração; o estado anterior é restaurado.                             |
+| Cupom expirado              | Adicione um NFT ao carrinho e aplique KURIO10; confira o erro de expiração.                              |
+| Preço alterado              | Com item no carrinho, conecte a carteira simulada, revise e confirme; a mudança exige nova revisão.      |
+| Pagamento recusado          | Faça a compra simulada; o resultado é recusado e os itens permanecem no carrinho.                        |
+| Timeout após criar pedido   | Confirme uma compra; aguarde a recuperação do pedido e recarregue o recibo para conferir o mesmo ID.     |
+| Pedido pendente             | Confirme a compra e recarregue; o mesmo pedido permanece pendente e conclui após cerca de 60 segundos.   |
+| Expirar sessão              | Autentique, clique em Expirar sessão e abra perfil ou pagamento; entre novamente para retomar o destino. |
+
 ## Fluxos
 
 - Descoberta: busca, filtros combinados, preço, rede, ordenação, paginação e histórico pela URL.
@@ -63,13 +77,15 @@ Pagamentos recusados preservam o carrinho. A confirmação remove apenas as quan
 
 Os testes executam em 1440, 768 e 390px, com capturas do mobile de referência em 414×896. Cada teste usa um contexto isolado. As fixtures são controladas por requisições aos handlers MSW; os testes de tempo real atravessam `socket.io-client`.
 
+A suíte completa foi validada em Windows com Chromium. As baselines visuais usam o sufixo `win32`; Linux/macOS procuram arquivos de referência próprios e podem rasterizar fontes de modo diferente. Não atualize snapshots apenas para contornar uma diferença sem revisão. Em Linux, se faltarem bibliotecas do navegador, use `pnpm exec playwright install --with-deps chromium`.
+
 Baselines: `tests/e2e/*-snapshots`. Exports originais do Figma: `tests/visual/references`. Atualize baselines apenas após revisão visual:
 
 ```sh
 pnpm test:e2e --update-snapshots
 ```
 
-O relatório HTML é gerado em `playwright-report`; traces e screenshots de falhas ficam em `test-results`. A rodada posterior às orientações dos formulários e à correção de retomada de abas passou os **114 testes: 38 cenários nos três tamanhos**, incluindo **15 verificações visuais**; sua cópia HTML está em `reports/playwright/index.html`. As baselines foram revisadas nas correções anteriores de UI e galeria; esta rodada não alterou snapshots nem tolerâncias. As asserções independentes de geometria do Figma foram preservadas. Os traces em `reports/playwright-reviewed-failures` são históricos de diferenças resolvidas. As baselines não afirmam equivalência absoluta de pixels com o Figma. Os relatórios Lighthouse versionados pertencem à rodada de performance anterior; a auditoria não foi reexecutada após estas correções funcionais.
+O relatório HTML é gerado em `playwright-report`; traces e screenshots de falhas ficam em `test-results`. A rodada posterior às orientações dos formulários e à correção de retomada de abas passou os **114 testes: 38 cenários nos três tamanhos**, incluindo **15 verificações visuais**; sua cópia HTML está em `reports/playwright/index.html`. Para abrir a cópia entregue sem executar testes, use `pnpm exec playwright show-report reports/playwright`. Esta rodada não alterou snapshots, tolerâncias ou asserções de geometria do Figma. Dois traces históricos de diferenças visuais já resolvidas foram preservados em `reports/playwright/historical-failures`; abra um ZIP com `pnpm exec playwright show-trace caminho/do/arquivo.zip`. Não representam falhas da rodada aprovada. As baselines não afirmam equivalência absoluta de pixels com o Figma. Os relatórios Lighthouse versionados pertencem à rodada de performance anterior às últimas correções funcionais.
 
 Os PNGs originais foram preservados e têm cópias AVIF de alta qualidade para entrega, reduzindo aproximadamente 8 MB para 0,85 MB nas quatro artes em resolução original. Cards e galeria também oferecem variantes de 384/768px por `srcset`/`sizes`; a versão de 1254px continua disponível para telas maiores e zoom. Logo, ícones e imagens são locais. A fonte Roboto Mono também é empacotada localmente.
 
@@ -87,7 +103,7 @@ Arquitetura e contratos: [ARCHITECTURE.md](./ARCHITECTURE.md). Fidelidade e desv
 
 Auditoria histórica da **URL pública em 22/10/2026**, após otimizar a carga inicial e antes desta revisão: performance **93/94 no mobile (Home/detalhe) e 100 no desktop**, com acessibilidade, boas práticas e SEO **100**. São medianas de três execuções independentes por página/perfil, com mocks ativos. Os relatórios públicos foram mantidos fora do repositório. Isso não comprova a publicação das correções posteriores.
 
-Auditoria local reproduzível com `pnpm build` e `pnpm run audit`: **91/91 mobile e 100/99 desktop** (Home/detalhe), demais categorias em 100 na confirmação de 22/10/2026. Veja [medianas locais](./reports/lighthouse/SUMMARY.md), [análise local](./reports/lighthouse/ANALYSIS.md) e [continuação de performance](./docs/performance-followup.md). Mocks, latências e configuração foram mantidos. A execução pública usa condições diferentes; as notas não isolam a causa da diferença nem garantem resultados futuros.
+Os relatórios locais versionados registram **91/91 mobile e 100/99 desktop** (Home/detalhe), demais categorias em 100, na confirmação de 22/10/2026. Reproduza com `pnpm build` e `pnpm run audit`. Veja [medianas](./reports/lighthouse/SUMMARY.md), [análise](./reports/lighthouse/ANALYSIS.md) e [ambiente](./reports/lighthouse/environment.json), além dos HTML/JSON individuais. Mocks, latências e configuração foram mantidos. A execução pública usa condições diferentes; as notas não isolam a causa da diferença nem garantem resultados futuros.
 
 ## Revisão de UI e interações
 
@@ -97,4 +113,4 @@ Os formulários mostram dicas persistentes e exemplos fictícios. O endereço ex
 
 Favicon e card social: `public/favicon.svg` e `public/og-image.png` (1200×630). Para regenerar o PNG, com `pnpm dev:mocks` ativo, execute `node scripts/generate-social-card.mjs`. Atualize as URLs absolutas de Open Graph/Twitter no `index.html` se mudar o domínio.
 
-Veja [correções iniciais](./docs/corrections-review.md) e [fechamento da revisão](./docs/final-review.md). Na investigação posterior, a mesma tela genérica foi reproduzida ao suspender o Service Worker: respostas HTML do fallback SPA eram tratadas como JSON e causavam exceção no cabeçalho. Esse cenário foi corrigido e recebeu testes de regressão; não se afirma que toda ocorrência histórica tenha necessariamente essa mesma causa. A recuperação de chunks permanece um caso separado.
+Na investigação de retomada da aba, uma tela genérica de erro foi reproduzida ao suspender o Service Worker: respostas HTML do fallback SPA eram tratadas como JSON e causavam exceção no cabeçalho. Esse cenário foi corrigido e recebeu testes de regressão; não se afirma que toda ocorrência histórica tenha necessariamente essa mesma causa. A recuperação de chunks permanece um caso separado, descrito no `ARCHITECTURE.md`.

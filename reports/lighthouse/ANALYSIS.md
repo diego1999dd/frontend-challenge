@@ -25,7 +25,7 @@ Os **12 HTMLs e 12 JSONs individuais desta rodada** estão nas subpastas `mobile
 
 ## Ajuste encontrado pela própria auditoria
 
-A primeira rodada desta revisão apontou alvos de toque insuficientes nas novas bolinhas de carrossel (acessibilidade 96/97 na Home e 97 no detalhe desktop). Pseudo-elementos com áreas sobrepostas não bastavam. Foram adotados **botões reais de 24×24px ou mais**, com pontos visuais pequenos e espaçamento adequado. A auditoria final voltou a 100 em acessibilidade em todos os perfis. O espaçamento é um desvio deliberado de acessibilidade em relação ao Figma, documentado em `docs/corrections-review.md`. A rodada intermediária foi arquivada fora do repositório.
+A primeira rodada desta revisão apontou alvos de toque insuficientes nas novas bolinhas de carrossel (acessibilidade 96/97 na Home e 97 no detalhe desktop). Pseudo-elementos com áreas sobrepostas não bastavam. Foram adotados **botões reais de 24×24px ou mais**, com pontos visuais pequenos e espaçamento adequado. A auditoria final voltou a 100 em acessibilidade em todos os perfis. O espaçamento é um desvio deliberado de acessibilidade em relação ao Figma, documentado em [verificação visual](../../docs/design-verification.md). A rodada intermediária foi arquivada fora do repositório.
 
 ## Comparação e trabalho de otimização
 
@@ -33,11 +33,11 @@ O detalhe mobile passou de performance **89 para 91** e LCP mediano de **3267 pa
 
 O worker agora inicia com os handlers REST, sem importar imediatamente o adaptador Socket.IO. Esse adaptador é registrado sob demanda antes de criar o cliente. A imagem inicial ganha prioridade de pintura, com limite de espera de um segundo, erro tratado e cancelamento ao desmontar/trocar sessão. Não há pausa fixa quando ela já está pronta. A conexão continua real e reconcilia o estado com REST ao conectar, recuperando alterações anteriores; não há setters substituindo os eventos nem confirmação de compra fora da simulação. A melhora foi medida no conjunto, não atribuída isoladamente a cada linha.
 
-As otimizações anteriores foram preservadas. Apenas aguardar a pintura, sem separar o adaptador do bootstrap, manteve o detalhe em 89; esse experimento não é apresentado como sucesso isolado. Relatórios completos da primeira rodada bem-sucedida foram arquivados fora do repositório; os HTML/JSON versionáveis acima são da confirmação mais recente. Detalhes em [performance-followup.md](../../docs/performance-followup.md).
+As otimizações anteriores foram preservadas. Apenas aguardar a pintura, sem separar o adaptador do bootstrap, manteve o detalhe em 89; esse experimento não é apresentado como sucesso isolado. Relatórios completos da primeira rodada bem-sucedida foram arquivados fora do repositório; os HTML/JSON acima pertencem à confirmação de performance identificada neste documento. A separação do adaptador, reconciliação e cancelamento estão descritos na [arquitetura](../../ARCHITECTURE.md).
 
 ## Verificação complementar
 
-- **99 testes Playwright aprovados**, incluindo 15 visuais, em 1440/768/390px (capturas de referência mobile em 414×896). O teste adicional verifica espera por imagem, cancelamento e fallback; os demais exercitam Socket.IO, reconexão, isolamento e compra. O relatório HTML corresponde à execução completa aprovada.
+- Na época desta auditoria, **99 testes Playwright foram aprovados**, incluindo 15 visuais, em 1440/768/390px (capturas de referência mobile em 414×896). A suíte foi posteriormente ampliada para 114 testes; o HTML em `reports/playwright` corresponde à rodada posterior descrita no README, não à contagem histórica desta auditoria.
 - Treze baselines revistas após as correções; rodada completa posterior sem atualização de snapshots, sem alterar tolerâncias ou asserções de geometria do Figma.
 - Lint, formatação, tipos e build aprovados; dependências e lockfile não foram alterados. A instalação separada com lockfile congelado/offline pertence à verificação anterior, não foi repetida nesta continuação.
 - Build de produção servido localmente em 1440/768/390px: adaptador lazy conecta, evento Socket.IO atualiza o preço e o aviso, compra confirma e o mesmo recibo é recuperado após refresh. Nenhum erro de página nesses fluxos.
@@ -50,4 +50,4 @@ pnpm build
 pnpm run audit
 ```
 
-Não rode E2E ou tarefas pesadas ao mesmo tempo. Detalhamento das correções e ressalvas em [docs/corrections-review.md](../../docs/corrections-review.md). Esta medição valida o build local; é necessário publicar e conferir a nova revisão antes da entrega.
+Não rode E2E ou tarefas pesadas ao mesmo tempo. Decisões e limitações estão na [arquitetura](../../ARCHITECTURE.md) e na [verificação visual](../../docs/design-verification.md). Esta medição valida o build local da rodada identificada acima, não comprova a publicação de revisões posteriores.
