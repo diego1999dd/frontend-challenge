@@ -134,6 +134,7 @@ export function orderOptions(userId: string | undefined, id: string) {
 	})
 }
 export function apiError(error: unknown): string {
+	if (isAxiosError(error) && error.code === 'ERR_INVALID_API_RESPONSE') return error.message
 	if (isAxiosError(error))
 		return (
 			error.response?.data?.message ||

@@ -92,6 +92,12 @@ Queries repetem uma vez falhas de transporte/5xx; 4xx não repetem. Sessão e co
 
 Favoritos usam atualização otimista com snapshot anterior, rollback e invalidação. O rollback confere a identidade da sessão para não restaurar cache de um usuário que já saiu. Controles sinalizam a mutation pendente; testes de persistência aguardam a confirmação da API, não apenas o estado otimista.
 
+## Retomada de abas e validação do transporte
+
+A suspensão do processo do Service Worker pode apagar o conjunto de clientes ativos mantido em memória pelo MSW. Na reprodução com `ServiceWorker.stopAllWorkers` (CDP), a próxima consulta recebia o HTML do fallback SPA e era interpretada como carrinho, causando uma exceção no cabeçalho. O Axios agora rejeita respostas sem JSON estruturado antes de entregá-las ao Query. Nos mocks, uma recuperação compartilhada reativa o cliente pelo handshake `MOCK_ACTIVATE` / `MOCKING_ENABLED` do `public/mockServiceWorker.js` versionado, com limite de três segundos e limpeza do listener. Essa dependência do protocolo do MSW deve ser revalidada ao atualizar o pacote/worker; não se altera o arquivo gerado. Não usamos `worker.stop()` na retomada, pois ele substituiria o interceptor WebSocket capturado pelo Socket.IO.
+
+Somente consultas GET/HEAD/OPTIONS podem ser repetidas automaticamente, uma vez por requisição, após o reconhecimento da reativação. Gravações não são reenviadas automaticamente e não aparentam sucesso quando recebem HTML; o usuário recebe erro recuperável. Pedidos continuam usando sua recuperação por chave de idempotência. Não há reload da página, reset de dados ou simulação direta de estado. Os testes encerram o processo real do Service Worker e verificam retomada antes da expiração, expiração após 31 minutos com retorno ao pagamento e carrinho preservado, Socket.IO funcional e ausência de reenvio automático de mutation. O cenário foi reproduzido no build local e na versão publicada anterior; a correção precisa de novo deploy para valer na hospedagem.
+
 ## Socket.IO
 
 As definições de rotas e a sessão têm imports estáticos para que o Vite descubra suas dependências no HTML. Páginas secundárias de conta/compra usam `React.lazy` e `Suspense`. No build com mocks, um plugin adiciona `modulepreload` ao bootstrap MSW e suas dependências: antecipa download/compilação, não a ativação do worker. React só é montado após `worker.start()` concluir.
