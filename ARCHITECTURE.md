@@ -18,13 +18,15 @@ tests/e2e/             # Fluxos reais de UI e baselines Playwright
 scripts/audit.mjs      # Lighthouse pelo Chromium do Playwright
 ```
 
-O padrão visual segue a organização solicitada a partir do YESS: paleta central em `global.css`, aliases shadcn, layout compartilhado, componentes repetidos reutilizados e páginas compostas por seções. `marketplace.css`, `detail.css`, `account.css` e `commerce.css` contêm a composição, sem duplicar uma paleta por página.
+O padrão visual usa paleta central em `global.css`, aliases shadcn, layout compartilhado, componentes repetidos reutilizados e páginas compostas por seções. `marketplace.css`, `detail.css`, `account.css` e `commerce.css` contêm a composição, sem duplicar uma paleta por página.
 
 Componentes não importam fixtures. REST passa por Axios, consultas/mutations por TanStack Query e rotas/parâmetros/proteção por TanStack Router. Os mocks ficam exclusivamente na camada de rede. A fonte e os assets são locais.
 
 ## Sessão e isolamento
 
 `GET /session` é a referência para recuperar usuário e expiração. O token fictício fica em `kurio-demo-session`. Requests recebem `Authorization: Bearer …` e `X-Visitor-Id` pelo interceptor Axios. O visitante tem identificador próprio, sem acesso a recursos privados.
+
+A sessão simulada dura 30 minutos a partir da autenticação. Ao expirar, páginas privadas levam ao login preservando o destino para retomada; páginas públicas continuam acessíveis sem autenticação. Dados do carrinho persistidos na API simulada não são apagados pela limpeza do cache da sessão.
 
 Chaves privadas têm prefixo `['private', userId, recurso]`; cotações também incluem identidade, revisão do carrinho e rede. Login/logout/troca/expiração cancelam consultas e removem caches sensíveis, inclusive carrinho e cotações. Uma resposta 401 `SESSION_EXPIRED` da sessão vigente dispara limpeza e redirecionamento. Falha de login usa outro código e não apaga a sessão por engano.
 
@@ -37,6 +39,8 @@ Na revisão de UI de 22/10, ENS e apelido do perfil passaram a ser obrigatórios
 ## REST
 
 Os tipos compartilhados estão em `features/catalog/contracts.ts` e `features/account/contracts.ts`.
+
+Os caminhos abaixo são relativos à base HTTP, `/api` por padrão.
 
 | Recurso             | Operações                                                                                                        |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -96,7 +100,7 @@ Favoritos usam atualização otimista com snapshot anterior, rollback e invalida
 
 A suspensão do processo do Service Worker pode apagar o conjunto de clientes ativos mantido em memória pelo MSW. Na reprodução com `ServiceWorker.stopAllWorkers` (CDP), a próxima consulta recebia o HTML do fallback SPA e era interpretada como carrinho, causando uma exceção no cabeçalho. O Axios agora rejeita respostas sem JSON estruturado antes de entregá-las ao Query. Nos mocks, uma recuperação compartilhada reativa o cliente pelo handshake `MOCK_ACTIVATE` / `MOCKING_ENABLED` do `public/mockServiceWorker.js` versionado, com limite de três segundos e limpeza do listener. Essa dependência do protocolo do MSW deve ser revalidada ao atualizar o pacote/worker; não se altera o arquivo gerado. Não usamos `worker.stop()` na retomada, pois ele substituiria o interceptor WebSocket capturado pelo Socket.IO.
 
-Somente consultas GET/HEAD/OPTIONS podem ser repetidas automaticamente, uma vez por requisição, após o reconhecimento da reativação. Gravações não são reenviadas automaticamente e não aparentam sucesso quando recebem HTML; o usuário recebe erro recuperável. Pedidos continuam usando sua recuperação por chave de idempotência. Não há reload da página, reset de dados ou simulação direta de estado. Os testes encerram o processo real do Service Worker e verificam retomada antes da expiração, expiração após 31 minutos com retorno ao pagamento e carrinho preservado, Socket.IO funcional e ausência de reenvio automático de mutation. O cenário foi reproduzido no build local e na versão publicada anterior; a correção precisa de novo deploy para valer na hospedagem.
+Somente consultas GET/HEAD/OPTIONS podem ser repetidas automaticamente, uma vez por requisição, após o reconhecimento da reativação. Gravações não são reenviadas automaticamente e não aparentam sucesso quando recebem HTML; o usuário recebe erro recuperável. Pedidos continuam usando sua recuperação por chave de idempotência. Não há reload da página, reset de dados ou simulação direta de estado. Os testes encerram o processo real do Service Worker e verificam retomada antes da expiração, expiração após 31 minutos com retorno ao pagamento e carrinho preservado, Socket.IO funcional e ausência de reenvio automático de mutation. O cenário foi reproduzido no build local e em uma versão publicada anterior à correção. A validação local não substitui a conferência do deploy correspondente.
 
 ## Socket.IO
 
@@ -138,10 +142,12 @@ Os frames e assets foram lidos pelo Figwright 0.6.0; nenhuma alteração foi fei
 
 Há labels, mensagens de erro, foco visível, links de retorno, diálogos Radix, feedback live e skeletons com movimento reduzido. O skeleton do detalhe compartilha a geometria da tela para evitar salto de layout. As cópias AVIF mantêm a composição das artes, com variantes de 384/768px e original de 1254px escolhidas por `srcset`/`sizes`. Os PNGs originais continuam disponíveis; o layout não muda com a resolução do arquivo entregue.
 
+Perfil e carteiras mostram orientações persistentes associadas aos campos por `aria-describedby`, além de placeholders. O exemplo e o formato de endereço acompanham a rede selecionada, usando as mesmas orientações na validação da API. ENS, indicação fictícia, nomes e senha têm instruções explícitas; exemplos não são carteiras para receber ativos reais. As dicas acrescentam espaço vertical aos formulários sem alterar os campos obrigatórios ou remover conteúdo em telas menores.
+
 A verificação usa Chromium em desktop/tablet/mobile e screenshots versionadas. Perfis, carteiras e recibo também são responsivos, com adaptação inferida onde não há frame mobile. Desvios e referências estão em `docs/design-verification.md`. Métricas e condições de medição ficam em `reports/lighthouse`.
 
 Revisão de interações: foco de inputs é indicado internamente, enquanto links/botões preservam foco visível por teclado. Favoritos usam preenchimento/estado acessível. Carrosséis têm controles reais de pelo menos 24×24px, sem autoplay; no histórico, a faixa do slider é reidratada da URL. CSS e View Transitions nativas do Router fornecem movimentos curtos, respeitando movimento reduzido, sem biblioteca extra. A Home não recebe animação de entrada. Avisos de eventos expiram em seis segundos; o estado reconciliado não é revertido quando o aviso desaparece.
 
-O evento `vite:preloadError` tenta recarregar uma vez por minuto para recuperar chunks removidos por um novo deploy. Foi verificado no build com uma resposta HTTP 404 controlada para a primeira requisição real de uma página lazy, recuperando também a sessão. Falhas repetidas não entram em loop; a tela de erro oferece recarga explícita. Isso não identifica a causa da captura genérica de `CORRECOES.md`, que não foi reproduzida espontaneamente. Decisões e resultados estão em `docs/corrections-review.md`.
+O evento `vite:preloadError` tenta recarregar uma vez por minuto para recuperar chunks removidos por um novo deploy. Foi verificado no build com uma resposta HTTP 404 controlada para a primeira requisição real de uma página lazy, recuperando também a sessão. Falhas repetidas não entram em loop; a tela de erro oferece recarga explícita. A recuperação de chunks e a recuperação do Service Worker são casos distintos. A mesma tela genérica foi reproduzida na investigação de suspensão descrita acima; isso não prova que toda ocorrência histórica teve a mesma causa. Decisões da revisão visual estão em `docs/corrections-review.md`.
 
-Uma versão anterior foi publicada pelo usuário na Cloudflare; fallback SPA, login, compra e refresh do recibo foram verificados no Edge. As otimizações de carregamento desta rodada foram verificadas localmente e ainda precisam ser publicadas. A auditoria de dependências de produção anteriormente não apontou vulnerabilidades no ambiente verificado; dependências de desenvolvimento da ferramenta Lighthouse tinham alertas transitivos, reproduzíveis com `pnpm audit`. Essa observação histórica não substitui uma nova auditoria de dependências. Essas ferramentas não são importadas pela aplicação publicada.
+A aplicação utiliza hospedagem Cloudflare com fallback SPA. O README registra a URL pública e distingue a versão conferida em produção das verificações locais posteriores. Cada publicação deve ser conferida com acesso direto, autenticação, compra e refresh do recibo; um push não comprova a conclusão do deploy. A auditoria de dependências de produção anteriormente não apontou vulnerabilidades no ambiente verificado; dependências de desenvolvimento da ferramenta Lighthouse tinham alertas transitivos, reproduzíveis com `pnpm audit`. Essa observação histórica não substitui uma nova auditoria de dependências. Essas ferramentas não são importadas pela aplicação publicada.
