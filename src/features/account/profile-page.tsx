@@ -39,6 +39,8 @@ function ProfileForm({ profile }: { profile: Profile }) {
 				<AccountField
 					label="Nome de exibição"
 					name="name"
+					placeholder="Colecionador Teste"
+					hint="Como seu nome aparece no perfil e no pagamento. Ex.: Colecionador Teste."
 					defaultValue={profile.name}
 					required
 					error={errors.name}
@@ -47,6 +49,8 @@ function ProfileForm({ profile }: { profile: Profile }) {
 				<AccountField
 					label="Nome de usuário"
 					name="username"
+					placeholder="colecionador"
+					hint="Use de 3 a 30 letras, números, ponto, hífen ou sublinhado, sem espaços. Ex.: colecionador."
 					defaultValue={profile.username}
 					required
 					error={errors.username}
@@ -56,21 +60,32 @@ function ProfileForm({ profile }: { profile: Profile }) {
 					label="E-mail"
 					type="email"
 					name="email"
+					placeholder="colecionador@kurio.test"
+					hint="Use um e-mail fictício. Ex.: colecionador@kurio.test; nenhum e-mail será enviado."
 					defaultValue={profile.email}
 					required
 					error={errors.email}
 					autoComplete="email"
 				/>
-				<EnsField defaultValue={profile.ens} error={errors.ens} />
+				<EnsField
+					defaultValue={profile.ens}
+					error={errors.ens}
+					hint="Ex.: colecionador. O sufixo .eth já está selecionado; também pode colar colecionador.eth. Nome apenas simulado, sem registro real."
+				/>
 				<AccountField
 					label="Apelido da carteira"
 					name="walletAlias"
+					placeholder="Principal"
+					hint="Apelido de referência no seu perfil. Ex.: Principal; o endereço é cadastrado em Carteiras."
 					required
 					defaultValue={profile.walletAlias}
 					error={errors.walletAlias}
 				/>
 				<div className="avatar-field">
 					<p>Avatar</p>
+					<p className="text-xs text-text-secondary">
+						Use uma imagem fictícia em PNG, JPEG ou WebP de até 1 MB.
+					</p>
 					<div>
 						{avatar ? (
 							<img src={avatar} alt="Avatar do colecionador" />
@@ -121,6 +136,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
 					label="Senha atual"
 					type="password"
 					name="currentPassword"
+					hint="Preencha apenas se quiser trocar a senha desta conta de demonstração."
 					autoComplete="current-password"
 					error={errors.currentPassword}
 				/>
@@ -128,6 +144,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
 					label="Nova senha"
 					type="password"
 					name="password"
+					hint="Use pelo menos 8 caracteres, com maiúscula, minúscula e número. Use uma senha apenas para esta demonstração."
 					autoComplete="new-password"
 					error={errors.password}
 				/>
@@ -135,6 +152,7 @@ function ProfileForm({ profile }: { profile: Profile }) {
 					label="Confirmar nova senha"
 					type="password"
 					name="confirmPassword"
+					hint="Repita exatamente a nova senha. Para salvar só os dados do perfil, deixe as três senhas vazias."
 					autoComplete="new-password"
 					error={errors.confirmPassword}
 				/>

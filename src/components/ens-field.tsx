@@ -7,16 +7,18 @@ export function EnsField({
 	error,
 	required = true,
 	readOnly = false,
+	hint,
 }: {
 	defaultValue?: string
 	error?: string
 	required?: boolean
 	readOnly?: boolean
+	hint?: string
 }) {
 	const [value, setValue] = useState(defaultValue.replace(/\.eth$/i, ''))
 	const ens = value.trim() ? `${value.trim().replace(/\.eth$/i, '')}.eth` : ''
 	return (
-		<FormField label="Nome ENS" error={error} required={required}>
+		<FormField label="Nome ENS" error={error} hint={hint} required={required}>
 			{(aria) => (
 				<div className="ens-field">
 					<select
@@ -34,6 +36,7 @@ export function EnsField({
 						onChange={(event) => setValue(event.target.value)}
 						required={required}
 						readOnly={readOnly}
+						placeholder={readOnly ? undefined : 'colecionador'}
 						autoCapitalize="none"
 						autoCorrect="off"
 					/>

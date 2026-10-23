@@ -21,7 +21,7 @@ export function FormField({ label, hint, error, children, className, required }:
 			</label>
 			{children({ id, 'aria-describedby': describedBy, 'aria-invalid': error ? true : undefined })}
 			{hint && (
-				<p id={hintId} className="text-xs text-text-secondary">
+				<p id={hintId} className="text-xs [overflow-wrap:anywhere] text-text-secondary">
 					{hint}
 				</p>
 			)}

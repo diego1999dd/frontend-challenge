@@ -238,7 +238,9 @@ test('cadastro, validação, perfil, avatar, senha e carteiras persistem', async
 	await page.getByLabel('E-mail', { exact: true }).fill('colecionador@kurio.test')
 	await page.getByLabel('Endereço da carteira', { exact: true }).fill('inválido')
 	await page.getByRole('button', { name: 'Salvar carteira', exact: true }).click()
-	await expect(page.getByText('Endereço incompatível com a rede selecionada.')).toBeVisible()
+	await expect(page.getByRole('alert').filter({ hasText: 'Endereço incompatível' })).toContainText(
+		'Ethereum: 0x seguido de 40 caracteres hexadecimais',
+	)
 	await page.getByLabel('Endereço da carteira', { exact: true }).fill(`0x${'a'.repeat(40)}`)
 	await page.getByRole('button', { name: 'Salvar carteira', exact: true }).click()
 	await expect(page.getByText('Carteira salva com sucesso.')).toBeVisible()

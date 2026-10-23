@@ -1,5 +1,6 @@
 import { delay, http, HttpResponse } from 'msw'
 import type { Collector, Network, Order, Wallet } from '@/features/account/contracts'
+import { walletAddressGuidance } from '@/features/account/wallet-address-guidance'
 import {
 	database,
 	saveDatabase,
@@ -388,7 +389,7 @@ export const accountHandlers = [
 				body.address || '',
 			)
 		)
-			fields.address = 'Endereço incompatível com a rede selecionada.'
+			fields.address = `Endereço incompatível com a rede selecionada. ${walletAddressGuidance[body.network]?.format || 'Selecione uma rede para ver o formato esperado.'}`
 		if (!['MetaMask', 'WalletConnect', 'Coinbase', 'Phantom'].includes(body.provider))
 			fields.provider = 'Selecione um tipo de carteira.'
 		if (!body.profileName?.trim()) fields.profileName = 'Informe o nome do perfil.'

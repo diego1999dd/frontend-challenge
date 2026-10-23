@@ -35,11 +35,12 @@ export function AccountField({ label, error, hint, type, ...props }: FieldProps)
 export function AccountSelect({
 	label,
 	error,
+	hint,
 	children,
 	...props
-}: ComponentProps<'select'> & { label: string; error?: string }) {
+}: ComponentProps<'select'> & { label: string; error?: string; hint?: string }) {
 	return (
-		<FormField label={label} error={error} required={props.required}>
+		<FormField label={label} error={error} hint={hint} required={props.required}>
 			{(aria) => (
 				<select {...aria} {...props} className={fieldClassName}>
 					{children}

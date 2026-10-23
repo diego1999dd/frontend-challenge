@@ -236,6 +236,7 @@
 }
 .account-fields > div {
 	gap: 10px;
+	align-content: start;
 }
 .account-fields label {
 	font-size: 15px;
